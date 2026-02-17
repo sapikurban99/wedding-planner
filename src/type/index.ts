@@ -1,29 +1,55 @@
-export type Transaction = {
-  id: number;
-  date: string;
-  type: 'income' | 'expense';
-  desc: string;
-  amount: number;
-  category: string;
-};
+export interface Guest {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  status: "confirmed" | "pending" | "declined";
+  category: "family" | "friend" | "colleague" | "other";
+  plusOne?: boolean;
+  dietaryRestrictions?: string;
+  specialRequests?: string;
+}
 
-export type Budget = {
+export interface BudgetItem {
+  id: string;
+  category: string;
   item: string;
-  plan: number;
-  paid: number;
-};
+  estimatedCost: number;
+  actualCost?: number;
+  status: "planned" | "paid" | "cancelled";
+  vendor?: string;
+  notes?: string;
+  dueDate?: string;
+}
 
-export type TimelineItem = {
-  task: string;
-  deadline: string;
-  status: 'Done' | 'Pending';
+export interface ChecklistItem {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  priority: "low" | "medium" | "high";
+  dueDate?: string;
   category: string;
-};
+  assignedTo?: string;
+}
 
-export type AppData = {
-  target: number;
-  weddingDate: string;
-  transactions: Transaction[];
-  budgets: Budget[];
-  timeline: TimelineItem[];
-};
+export interface TimelineEvent {
+  id: string;
+  title: string;
+  date: string;
+  time?: string;
+  location?: string;
+  description?: string;
+  category: string;
+  attendees?: string[];
+  status: "planned" | "confirmed" | "completed" | "cancelled";
+}
+
+export interface AppData {
+  guests: Guest[];
+  budget: BudgetItem[];
+  checklist: ChecklistItem[];
+  timeline: TimelineEvent[];
+}
+
+export type { AppData };

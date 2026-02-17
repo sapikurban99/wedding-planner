@@ -1,33 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wedding Planner - Aplikasi Perencanaan Pernikahan
 
-## Getting Started
+Aplikasi web untuk membantu pasangan dalam merencanakan pernikahan mereka dengan lebih terstruktur dan mudah.
 
-First, run the development server:
+## Fitur Utama
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Perencanaan timeline pernikahan
+- Daftar tamu undangan
+- Budget dan pengeluaran
+- Checklist persiapan
+- Pencarian vendor pernikahan
+- Galeri inspirasi
+
+## Teknologi yang Digunakan
+
+- [Next.js](https://nextjs.org/) - Framework React untuk produksi
+- [React](https://reactjs.org/) - Library JavaScript untuk membangun antarmuka pengguna
+- [TypeScript](https://www.typescriptlang.org/) - Superset JavaScript yang diketik
+- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS utility-first
+- [canvas-confetti](https://github.com/catdad/canvas-confetti) - Efek konfeti untuk perayaan
+
+## Cara Instalasi
+
+1. Clone repository ini:
+   ```bash
+   git clone https://github.com/sapikurban99/wedding-planner.git
+   ```
+
+2. Masuk ke direktori project:
+   ```bash
+   cd wedding-planner
+   ```
+
+3. Instal dependensi:
+   ```bash
+   npm install
+   ```
+
+4. Jalankan aplikasi dalam mode development:
+   ```bash
+   npm run dev
+   ```
+
+5. Buka [http://localhost:3000](http://localhost:3000) di browser Anda untuk melihat hasilnya.
+
+## Struktur Project
+
+```
+├── src/
+│   ├── app/              # Komponen halaman Next.js
+│   ├── components/        # Komponen UI reusable
+│   ├── lib/              # Fungsi utilitas
+│   └── styles/           # File CSS
+├── public/               # File statis
+└── ...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Perintah yang Tersedia
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `npm run dev` - Menjalankan aplikasi dalam mode development
+- `npm run build` - Membuat versi produksi aplikasi
+- `npm start` - Menjalankan server produksi
+- `npm run lint` - Menjalankan ESLint untuk memeriksa kode
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Kontribusi
 
-## Learn More
+Kontribusi sangat diterima! Jika Anda ingin berkontribusi:
 
-To learn more about Next.js, take a look at the following resources:
+1. Fork repository ini
+2. Buat branch fitur baru (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan Anda (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buka Pull Request
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Lisensi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+MIT License - lihat file [LICENSE](LICENSE) untuk detail lebih lanjut.
+
+## Kontak
+
+Jika Anda memiliki pertanyaan atau masukan, silakan buat issue di repository ini.
 
 ## Deploy on Vercel
 
