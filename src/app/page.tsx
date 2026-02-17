@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { FaHeart, FaWallet, FaPlusCircle, FaReceipt, FaSyncAlt, FaArrowDown, FaCalendarAlt, FaInfoCircle, FaCheckCircle } from 'react-icons/fa';
 // @ts-ignore
 import confetti from 'canvas-confetti';
-import { AppData } from '@/types'; // Import tipe data
+import { AppData, Transaction, TimelineEvent, BudgetItem } from '../type'; // Import tipe data
 
 export default function Home() {
   // --- STATE ---
@@ -77,8 +77,8 @@ export default function Home() {
   useEffect(() => { fetchData(); }, []);
 
   // --- CALCULATIONS ---
-  const income = data.transactions.filter(t => t.type === 'income').reduce((a, b) => a + b.amount, 0);
-  const expense = data.transactions.filter(t => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+  const income = data.transactions.filter((t: Transaction) => t.type === 'income').reduce((a: number, b: Transaction) => a + b.amount, 0);
+  const expense = data.transactions.filter((t: Transaction) => t.type === 'expense').reduce((a: number, b: Transaction) => a + b.amount, 0);
   const cash = income - expense;
   const asset = income; // Asumsi: Total Uang Masuk = Progress (Kas + DP)
   const gap = data.target - asset;
@@ -93,7 +93,7 @@ export default function Home() {
   // --- ACTIONS ---
   const handleToggleTask = (task: string, isChecked: boolean) => {
     // Optimistic Update UI
-    const newTimeline = data.timeline.map(t => 
+    const newTimeline = data.timeline.map((t: TimelineEvent) => 
       t.task === task ? { ...t, status: (isChecked ? 'Done' : 'Pending') as 'Done' | 'Pending' } : t
     );
     setData({ ...data, timeline: newTimeline });
@@ -219,7 +219,7 @@ export default function Home() {
                 </div>
               </div>
               
-              {data.timeline.map((item, idx) => (
+              {data.timeline.map((item: TimelineEvent, idx: number) => (
                 <label key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition">
                   <div className="relative">
                     <input 
@@ -236,7 +236,7 @@ export default function Home() {
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-[10px] px-2 py-0.5 rounded font-bold flex items-center gap-1 ${item.status === 'Done' ? 'bg-gray-100 text-gray-400' : 'bg-pink-100 text-pink-700'}`}>
-                        <FaCalendarAlt size={10} /> {formatDate(item.deadline)}
+                        <FaCalendarAlt size={10} /> {item.deadline ? formatDate(item.deadline) : ''}
                       </span>
                       <span className="text-[10px] text-gray-400 border border-gray-200 px-1 rounded">{item.category}</span>
                     </div>
@@ -252,15 +252,15 @@ export default function Home() {
                <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl flex justify-between items-center">
                   <div>
                     <p className="text-xs text-gray-500 font-bold uppercase">Total Rencana</p>
-                    <p className="text-lg font-bold text-pink-700">{formatRupiah(data.budgets.reduce((a,b)=>a+b.plan,0))}</p>
+                    <p className="text-lg font-bold text-pink-700">{formatRupiah(data.budgets.reduce((a: number, b: BudgetItem) => a + b.plan, 0))}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-500 font-bold uppercase">Sudah Dibayar</p>
-                    <p className="text-lg font-bold text-emerald-600">{formatRupiah(data.budgets.reduce((a,b)=>a+b.paid,0))}</p>
+                    <p className="text-lg font-bold text-emerald-600">{formatRupiah(data.budgets.reduce((a: number, b: BudgetItem) => a + b.paid, 0))}</p>
                   </div>
                </div>
 
-               {data.budgets.map((b, idx) => {
+               {data.budgets.map((b: BudgetItem, idx: number) => {
                  const pct = (b.paid / b.plan) * 100;
                  return (
                    <div key={idx} className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
@@ -284,7 +284,7 @@ export default function Home() {
           {/* 3. HISTORY */}
           {activeTab === 'history' && (
              <ul className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
-               {[...data.transactions].sort((a,b) => b.id - a.id).map((trx) => {
+               {[...data.transactions].sort((a: Transaction, b: Transaction) => b.id.localeCompare(a.id)).map((trx: Transaction) => {
                  const isInc = trx.type === 'income';
                  return (
                    <li key={trx.id} className="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm">
@@ -365,7 +365,7 @@ export default function Home() {
                   onChange={(e) => setFormCategory(e.target.value)}
                  >
                    <option value="Lainnya">Lainnya</option>
-                   {data.budgets.map((b, i) => <option key={i} value={b.item}>{b.item}</option>)}
+                   {data.budgets.map((b: BudgetItem, i: number) => <option key={i} value={b.item}>{b.item}</option>)}
                  </select>
                </div>
              )}

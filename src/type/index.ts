@@ -14,12 +14,13 @@ export interface BudgetItem {
   id: string;
   category: string;
   item: string;
-  estimatedCost: number;
-  actualCost?: number;
+  plan: number;
+  paid: number;
   status: "planned" | "paid" | "cancelled";
   vendor?: string;
   notes?: string;
   dueDate?: string;
+  desc?: string;
 }
 
 export interface ChecklistItem {
@@ -35,6 +36,7 @@ export interface ChecklistItem {
 
 export interface TimelineEvent {
   id: string;
+  task: string;
   title: string;
   date: string;
   time?: string;
@@ -42,14 +44,32 @@ export interface TimelineEvent {
   description?: string;
   category: string;
   attendees?: string[];
-  status: "planned" | "confirmed" | "completed" | "cancelled";
+  status: "planned" | "confirmed" | "completed" | "cancelled" | "Done" | "Pending";
+  deadline?: string;
+}
+
+export interface Transaction {
+  id: string;
+  date: string;
+  desc: string;
+  amount: number;
+  type: "income" | "expense";
+  category: string;
 }
 
 export interface AppData {
-  guests: Guest[];
-  budget: BudgetItem[];
-  checklist: ChecklistItem[];
+  target: number;
+  weddingDate: string;
+  transactions: Transaction[];
+  budgets: BudgetItem[];
   timeline: TimelineEvent[];
 }
 
-export type { AppData };
+export interface AppData {
+  target: number;
+  weddingDate: string;
+  transactions: Transaction[];
+  budgets: BudgetItem[];
+  timeline: TimelineEvent[];
+}
+
