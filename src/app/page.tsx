@@ -284,7 +284,7 @@ export default function Home() {
           {/* 3. HISTORY */}
           {activeTab === 'history' && (
              <ul className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
-               {[...data.transactions].sort((a: Transaction, b: Transaction) => b.id.localeCompare(a.id)).map((trx: Transaction) => {
+               {[...data.transactions].sort((a: Transaction, b: Transaction) => b.date.localeCompare(a.date)).map((trx: Transaction) => {
                  const isInc = trx.type === 'income';
                  return (
                    <li key={trx.id} className="bg-white p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm">
