@@ -13,14 +13,14 @@ export async function GET() {
 
   try {
     const res = await fetch(url, { cache: 'no-store' });
-    
+
     // 2. Cek status response dari Google
     console.log("Status Google:", res.status);
-    
+
     if (!res.ok) {
-        const text = await res.text();
-        console.log("Error dari Google:", text);
-        return NextResponse.json({ error: 'Google Script Error', details: text }, { status: 500 });
+      const text = await res.text();
+      console.log("Error dari Google:", text);
+      return NextResponse.json({ error: 'Google Script Error', details: text }, { status: 500 });
     }
 
     const data = await res.json();
@@ -31,4 +31,24 @@ export async function GET() {
   }
 }
 
-// ... biarkan POST seperti biasa atau tambahkan log serupa ...
+// POST handler - forward mutations to Google Script
+export async function POST(request: Request) {
+  const url = process.env.GOOGLE_SCRIPT_URL;
+  if (!url) {
+    return NextResponse.json({ error: 'Config Missing' }, { status: 500 });
+  }
+
+  try {
+    const body = await request.text();
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    console.log("❌ POST Error:", error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
