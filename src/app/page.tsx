@@ -26,7 +26,8 @@ function PasswordGate({ onAuthenticated }: { onAuthenticated: () => void }) {
       });
       const data = await res.json();
       if (data.ok) {
-        sessionStorage.setItem('wedding_auth', 'true');
+        // PERUBAHAN: Gunakan localStorage agar tidak perlu login terus menerus
+        localStorage.setItem('wedding_auth', 'true');
         onAuthenticated();
       } else {
         setError('Password salah 😢');
@@ -103,7 +104,8 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const auth = sessionStorage.getItem('wedding_auth');
+    // PERUBAHAN: Cek dari localStorage
+    const auth = localStorage.getItem('wedding_auth');
     setIsAuthenticated(auth === 'true');
   }, []);
 
@@ -116,11 +118,14 @@ export default function Home() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [loadingText, setLoadingText] = useState('Memuat Data...');
   const [loadProgress, setLoadProgress] = useState(0);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const [activeTab, setActiveTab] = useState<'timeline' | 'budget' | 'history'>('timeline');
 
-  const startProgress = useCallback(() => {
+  // PERUBAHAN: Custom loading text
+  const startProgress = useCallback((text: string = 'Memproses...') => {
+    setLoadingText(text);
     setLoadProgress(0);
     if (progressInterval.current) clearInterval(progressInterval.current);
     let current = 0;
@@ -156,7 +161,7 @@ export default function Home() {
 
   const fetchData = async () => {
     setLoading(true);
-    startProgress();
+    startProgress('Memuat Data...');
     try {
       const res = await fetch('/api/proxy');
       const json = await res.json();
@@ -171,19 +176,25 @@ export default function Home() {
 
   const postData = async (payload: any) => {
     setLoading(true);
-    startProgress();
+    startProgress('Menyimpan Data...');
     try {
       await fetch('/api/proxy', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
-      fetchData();
+      // Ambil ulang data setelah save
+      const res = await fetch('/api/proxy');
+      const json = await res.json();
+      if (!json.error) setData(json);
+
       closeModals();
 
       if (payload.action === 'toggleTask' && payload.status === 'Done') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       if (payload.type === 'income') confetti({ particleCount: 50, spread: 50, origin: { y: 0.8 } });
     } catch (e) {
       alert("Gagal simpan data");
+    } finally {
+      finishProgress();
       setLoading(false);
     }
   };
@@ -205,12 +216,12 @@ export default function Home() {
     return Math.ceil(diff / (1000 * 3600 * 24));
   };
 
-  // --- LOGIKA TARGET BULANAN ---
   const daysLeft = getDaysLeft();
   const monthsLeft = Math.max(1, Math.ceil(daysLeft / 30));
   const monthlyTarget = gap > 0 ? gap / monthsLeft : 0;
 
   const handleToggleTask = (task: string, isChecked: boolean) => {
+    // Optimistic Update
     const newTimeline = data.timeline.map((t: TimelineEvent) =>
       t.task === task ? { ...t, status: (isChecked ? 'Done' : 'Pending') as 'Done' | 'Pending' } : t
     );
@@ -258,11 +269,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#fdf2f8] flex justify-center font-sans text-[#1f2937]">
 
-      {/* ===== TOP PROGRESS BAR ===== */}
+      {/* ===== FULL SCREEN LOADING OVERLAY ===== */}
       {(loading || loadProgress > 0) && (
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <div className="h-1.5 bg-[#fce7f3] overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-[#ec4899] via-[#f43f5e] to-[#f472b6] transition-all duration-300 ease-out" style={{ width: `${loadProgress}%` }}></div>
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#ffffffea] backdrop-blur-md transition-opacity duration-300">
+          <FaHeart className="text-[#ec4899] text-5xl animate-pulse mb-6 shadow-sm" />
+          <p className="text-[#1f2937] font-bold mb-4 text-lg">
+            {loadProgress < 100 ? `${loadingText} ${loadProgress}%` : 'Selesai ✓'}
+          </p>
+          <div className="w-64 h-3 bg-[#fce7f3] rounded-full overflow-hidden shadow-inner">
+            <div
+              className="h-full bg-gradient-to-r from-[#ec4899] via-[#f43f5e] to-[#ec4899] transition-all duration-200 ease-out"
+              style={{ width: `${loadProgress}%` }}
+            ></div>
           </div>
         </div>
       )}
@@ -299,7 +317,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ===== STATS GRID (Dengan Fitur Target Bulanan) ===== */}
+        {/* ===== STATS GRID ===== */}
         <div className="px-4 -mt-8 grid grid-cols-2 gap-3 relative z-20">
           <div className="bg-[#ffffff] col-span-2 rounded-2xl p-4 text-center shadow-md border border-[#f3f4f6]">
             <p className="text-[#9ca3af] text-[10px] font-bold uppercase">Uang Terkumpul</p>
