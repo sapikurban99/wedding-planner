@@ -61,43 +61,165 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
   -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== RGBA HELPER CLASSES FOR OLD iOS =====
+   Hex-alpha (#ffffff1a) is NOT supported on iOS < 12.2 
+   These classes use rgba() which works everywhere */
+
+.bg-white-10 {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.bg-white-20 {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.bg-white-30 {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.bg-white-95 {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.bg-white-92 {
+  background-color: rgba(255, 255, 255, 0.92);
+}
+
+.bg-black-50 {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.bg-black-20 {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.bg-pink-50-50 {
+  background-color: rgba(253, 242, 248, 0.5);
+}
+
+/* ===== BACKDROP-BLUR FALLBACK =====
+   backdrop-filter not supported on iOS < 13.
+   We raise opacity so it looks good without blur too. */
+
+.safe-blur {
+  background-color: rgba(255, 255, 255, 0.97);
+}
+
+@supports ((-webkit-backdrop-filter: blur(8px)) or (backdrop-filter: blur(8px))) {
+  .safe-blur {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.92);
+  }
+}
+
+.safe-blur-sm {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+@supports ((-webkit-backdrop-filter: blur(4px)) or (backdrop-filter: blur(4px))) {
+  .safe-blur-sm {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.safe-blur-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+@supports ((-webkit-backdrop-filter: blur(4px)) or (backdrop-filter: blur(4px))) {
+  .safe-blur-overlay {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }
 
 /* Progress Bar Animation */
-@keyframes progress-indeterminate {
+@-webkit-keyframes progress-indeterminate {
   0% {
+    -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
   }
 
   100% {
+    -webkit-transform: translateX(400%);
+    transform: translateX(400%);
+  }
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+
+  100% {
+    -webkit-transform: translateX(400%);
     transform: translateX(400%);
   }
 }
 
 .progress-bar-indeterminate {
+  -webkit-animation: progress-indeterminate 1.4s ease-in-out infinite;
   animation: progress-indeterminate 1.4s ease-in-out infinite;
 }
 
 /* Safe area padding for iPhone notch / home bar */
 .pb-safe {
+  padding-bottom: 1rem;
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
 }
 
 .pt-safe {
+  padding-top: 0px;
   padding-top: env(safe-area-inset-top, 0px);
 }
 
 /* Bottom sheet modal animation */
-@keyframes slide-up {
+@-webkit-keyframes slide-up {
   from {
+    -webkit-transform: translateY(100%);
     transform: translateY(100%);
     opacity: 0;
   }
 
   to {
+    -webkit-transform: translateY(0);
     transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    -webkit-transform: translateY(100%);
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
     opacity: 1;
   }
 }
@@ -113,10 +235,12 @@ body {
 }
 
 .modal-overlay {
+  -webkit-animation: fade-in 0.2s ease-out;
   animation: fade-in 0.2s ease-out;
 }
 
 .modal-bottom-sheet {
+  -webkit-animation: slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   animation: slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -131,6 +255,16 @@ body {
 }
 
 /* Password screen shimmer */
+@-webkit-keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -144,5 +278,13 @@ body {
 .shimmer-bg {
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
   background-size: 200% 100%;
+  -webkit-animation: shimmer 3s ease-in-out infinite;
   animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ===== iOS 12 FLEX FIX =====
+   Older iOS has issues with flex items not respecting min-width.
+   Adding explicit min-width: 0 to flex children fixes overflow. */
+.flex-1 {
+  min-width: 0;
 }
