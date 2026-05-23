@@ -151,6 +151,20 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
   );
 }
 
+// ===================== BOTTOM SHEET (top-level, avoid re-mount) =====================
+function BottomSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 safe-blur-overlay flex items-end justify-center modal-overlay" style={{ zIndex: 50 }} onClick={onClose}>
+      <div className="w-full rounded-t-3xl p-6 shadow-2xl pb-safe modal-bottom-sheet"
+        style={{ backgroundColor: '#fff', maxWidth: '24rem' }}
+        onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-center mb-4"><div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#d1d5db' }} /></div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 // ===================== MAIN APP =====================
 export default function Home() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
@@ -268,6 +282,15 @@ export default function Home() {
     fetchAll();
   }, [fetchAll]);
 
+  const silentRefresh = useCallback(async () => {
+    try {
+      const result = await sb.fetchAllData();
+      setData(result);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   useEffect(() => {
     if (authenticated) fetchAll();
   }, [authenticated, fetchAll]);
@@ -304,7 +327,6 @@ export default function Home() {
 
   // ====== HANDLERS ======
   const handleAddDeposit = async (amount: number, note?: string) => {
-    await sb.addSavingsDeposit({ amount, deposited_by: 'joint', notes: note || 'Setoran', date: new Date().toISOString() });
     await sb.addTransaction({
       date: new Date().toISOString(),
       desc: note || 'Setoran Tabungan',
@@ -313,7 +335,7 @@ export default function Home() {
       category: 'Income',
     });
     confetti({ particleCount: 50, spread: 50, origin: { y: 0.8 } });
-    refresh();
+    await silentRefresh();
     setShowDepositModal(false);
   };
 
@@ -321,7 +343,7 @@ export default function Home() {
     const val = parseInt(formAmount);
     if (isNaN(val) || val <= 0) return;
     await sb.updateSettings({ target_amount: val });
-    refresh();
+    await silentRefresh();
     setShowTargetModal(false);
     setFormAmount('');
   };
@@ -336,7 +358,7 @@ export default function Home() {
       type: 'expense',
       category: formCategory,
     });
-    refresh();
+    await silentRefresh();
     setShowExpenseModal(false);
     setFormDesc('');
     setFormAmount('');
@@ -352,7 +374,7 @@ export default function Home() {
       assigned_to: formParty as 'pria' | 'wanita' | 'joint',
       sort_order: 0,
     });
-    refresh();
+    await silentRefresh();
     setShowAddChecklistItem(false);
     setFormTitle('');
   };
@@ -360,13 +382,13 @@ export default function Home() {
   const handleToggleChecklist = async (id: string, completed: boolean) => {
     await sb.toggleChecklistItem(id, !completed);
     if (!completed) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    refresh();
+    await silentRefresh();
   };
 
   const handleDeleteChecklist = async (id: string) => {
     if (!confirm('Hapus item ini?')) return;
     await sb.deleteChecklistItem(id);
-    refresh();
+    await silentRefresh();
   };
 
   const handleAddEngagement = async () => {
@@ -379,7 +401,7 @@ export default function Home() {
       party: formParty,
       status: formStatus || 'planned',
     });
-    refresh();
+    await silentRefresh();
     setShowAddEngagement(false);
     setFormItem('');
     setFormBudget('');
@@ -396,7 +418,7 @@ export default function Home() {
       party: formParty,
       status: formStatus || 'planned',
     });
-    refresh();
+    await silentRefresh();
     setShowAddSeserahan(false);
     setFormItem('');
     setFormBudget('');
@@ -406,13 +428,13 @@ export default function Home() {
   const handleDeleteEngagement = async (id: string) => {
     if (!confirm('Hapus item ini?')) return;
     await sb.deleteEngagementItem(id);
-    refresh();
+    await silentRefresh();
   };
 
   const handleDeleteSeserahan = async (id: string) => {
     if (!confirm('Hapus item ini?')) return;
     await sb.deleteSeserahanItem(id);
-    refresh();
+    await silentRefresh();
   };
 
   const handleUpdateEngagement = async () => {
@@ -425,7 +447,7 @@ export default function Home() {
       party: formParty,
       status: formStatus,
     });
-    refresh();
+    await silentRefresh();
     setShowEditEngagement(null);
   };
 
@@ -439,7 +461,7 @@ export default function Home() {
       party: formParty,
       status: formStatus,
     });
-    refresh();
+    await silentRefresh();
     setShowEditSeserahan(null);
   };
 
@@ -467,20 +489,9 @@ export default function Home() {
     if (!newCategoryName.trim()) return;
     await sb.addChecklistCategory(newCategoryName.trim());
     setNewCategoryName('');
-    refresh();
+    await silentRefresh();
   };
 
-  // ====== UTILITY COMPONENTS ======
-  const BottomSheet = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => (
-    <div className="fixed inset-0 safe-blur-overlay flex items-end justify-center modal-overlay" style={{ zIndex: 50 }} onClick={onClose}>
-      <div className="w-full rounded-t-3xl p-6 shadow-2xl pb-safe modal-bottom-sheet"
-        style={{ backgroundColor: '#fff', maxWidth: '24rem' }}
-        onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-center mb-4"><div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#d1d5db' }} /></div>
-        {children}
-      </div>
-    </div>
-  );
 
   const renderSavingsProgressBar = () => {
     const pct = Math.min(savingsProgress, 100);
@@ -1769,7 +1780,7 @@ export default function Home() {
                 status: 'planned',
                 party: formParty,
               });
-              refresh();
+              await silentRefresh();
               setShowAddBudget(false);
             }} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#fff', backgroundColor: '#ec4899' }}>Simpan</button>
