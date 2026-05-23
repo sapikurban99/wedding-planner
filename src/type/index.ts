@@ -17,21 +17,29 @@ export interface BudgetItem {
   plan: number;
   paid: number;
   status: "planned" | "paid" | "cancelled";
+  party: "pria" | "wanita" | "joint";
   vendor?: string;
   notes?: string;
   dueDate?: string;
   desc?: string;
 }
 
+export interface ChecklistCategory {
+  id: string;
+  name: string;
+  sort_order: number;
+}
+
 export interface ChecklistItem {
   id: string;
+  category_id: string;
   title: string;
   description?: string;
   completed: boolean;
   priority: "low" | "medium" | "high";
-  dueDate?: string;
-  category: string;
-  assignedTo?: string;
+  due_date?: string;
+  assigned_to: "pria" | "wanita" | "joint";
+  sort_order: number;
 }
 
 export interface TimelineEvent {
@@ -57,19 +65,54 @@ export interface Transaction {
   category: string;
 }
 
+export interface EngagementItem {
+  id: string;
+  item: string;
+  category: string;
+  budget_amount: number;
+  actual_amount: number;
+  party: "pria" | "wanita" | "joint";
+  status: "planned" | "ordered" | "done" | "cancelled";
+  notes?: string;
+}
+
+export interface SeserahanItem {
+  id: string;
+  item: string;
+  category: string;
+  budget_amount: number;
+  actual_amount: number;
+  party: "pria" | "wanita" | "joint";
+  status: "planned" | "ordered" | "done" | "cancelled";
+  notes?: string;
+}
+
+export interface SavingsDeposit {
+  id: string;
+  amount: number;
+  deposited_by: "pria" | "wanita" | "joint";
+  notes?: string;
+  date: string;
+}
+
+export interface AppSettings {
+  id: number;
+  target_amount: number;
+  wedding_date: string | null;
+  couple_name: string;
+}
+
+export type PartyFilter = "pria" | "wanita" | "joint";
+export type StatusLabel = "planned" | "ordered" | "done" | "cancelled";
+
 export interface AppData {
-  target: number;
-  weddingDate: string;
+  settings: AppSettings;
   transactions: Transaction[];
   budgets: BudgetItem[];
   timeline: TimelineEvent[];
+  checklistCategories: ChecklistCategory[];
+  checklistItems: ChecklistItem[];
+  engagementItems: EngagementItem[];
+  seserahanItems: SeserahanItem[];
+  savingsDeposits: SavingsDeposit[];
 }
-
-export interface AppData {
-  target: number;
-  weddingDate: string;
-  transactions: Transaction[];
-  budgets: BudgetItem[];
-  timeline: TimelineEvent[];
-}
-
