@@ -100,8 +100,8 @@ body {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-.bg-pink-50-50 {
-  background-color: rgba(253, 242, 248, 0.5);
+.bg-gray-50-50 {
+  background-color: rgba(249, 250, 251, 0.5);
 }
 
 /* ===== BACKDROP-BLUR FALLBACK =====

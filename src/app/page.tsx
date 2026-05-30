@@ -98,7 +98,7 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
-      style={{ background: 'linear-gradient(to bottom right, #f43f5e, #ec4899, #e11d48)' }}>
+      style={{ background: '#111827' }}>
       <div className="absolute top-10 left-10 w-24 h-24 bg-white-10 rounded-full" style={{ filter: 'blur(32px)' }} />
       <div className="absolute bottom-20 right-10 w-32 h-32 bg-white-10 rounded-full" style={{ filter: 'blur(32px)' }} />
       <div className="w-full max-w-sm relative" style={{ zIndex: 10 }}>
@@ -107,12 +107,12 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
             <FaHeart className="text-3xl" style={{ color: '#fff' }} />
           </div>
           <h1 className="text-2xl font-bold text-white">Wedding Dream</h1>
-          <p className="text-sm mt-1" style={{ color: '#fce7f3' }}>Qisti & Aldi</p>
+          <p className="text-sm mt-1" style={{ color: '#e5e7eb' }}>Qisti & Aldi</p>
         </div>
         <form onSubmit={handleSubmit} className="safe-blur rounded-3xl p-6 shadow-2xl">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3" style={{ backgroundColor: '#fce7f3' }}>
-              <FaLock className="text-lg" style={{ color: '#ec4899' }} />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3" style={{ backgroundColor: '#e5e7eb' }}>
+              <FaLock className="text-lg" style={{ color: '#111827' }} />
             </div>
             <h2 className="text-lg font-bold" style={{ color: '#1f2937' }}>Masukkan Password</h2>
             <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>Untuk mengakses Wedding Planner</p>
@@ -124,7 +124,7 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
               value={pw}
               onChange={(e) => setPw(e.target.value)}
               className="w-full p-4 pr-12 rounded-2xl outline-none font-medium text-base"
-              style={{ border: '2px solid #fce7f3', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
               autoFocus
               autoComplete="off"
             />
@@ -137,7 +137,7 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
           <button type="submit" disabled={checking}
             className="w-full py-4 font-bold rounded-2xl shadow-lg text-base"
             style={{
-              background: 'linear-gradient(to right, #ec4899, #f43f5e)',
+              background: '#111827',
               color: '#fff',
               opacity: checking ? 0.6 : 1,
             }}>
@@ -145,7 +145,7 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
             {checking ? 'Memverifikasi...' : 'Masuk'}
           </button>
         </form>
-        <p className="text-center text-xs mt-6" style={{ color: '#fbcfe8' }}>With love, forever</p>
+        <p className="text-center text-xs mt-6" style={{ color: '#d1d5db' }}>With love, forever</p>
       </div>
     </div>
   );
@@ -500,7 +500,7 @@ export default function Home() {
       <div className="relative w-full h-5 mt-2">
         <div className="w-full h-full rounded-full overflow-hidden relative" style={{ backgroundColor: '#f3f4f6' }}>
           <div className="h-full rounded-full relative transition-all duration-700"
-            style={{ width: `${pct}%`, background: 'linear-gradient(to right, #ec4899, #f43f5e)' }} />
+            style={{ width: `${pct}%`, background: '#111827' }} />
         </div>
         {markers.map(m => (
           <div key={m} className="absolute top-0 flex flex-col items-center" style={{ left: `${m}%`, transform: 'translateX(-50%)' }}>
@@ -513,26 +513,26 @@ export default function Home() {
   };
 
   if (authenticated === null) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#fdf2f8' }}>
-      <FaSyncAlt className="animate-spin text-2xl" style={{ color: '#f472b6' }} />
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f9fafb' }}>
+      <FaSyncAlt className="animate-spin text-2xl" style={{ color: '#374151' }} />
     </div>
   );
   if (!authenticated) return <PasswordGate onAuth={() => setAuthenticated(true)} />;
 
   return (
-    <div className="min-h-screen flex justify-center font-sans" style={{ backgroundColor: '#fdf2f8', color: '#1f2937' }}>
+    <div className="min-h-screen flex justify-center font-sans" style={{ backgroundColor: '#f9fafb', color: '#1f2937' }}>
 
       {/* ===== LOADING OVERLAY ===== */}
       {(loading || loadProgress > 0) && (
         <div className="fixed inset-0 flex flex-col items-center justify-center safe-blur" style={{ zIndex: 100, transition: 'opacity 0.3s' }}>
-          <FaHeart className="animate-pulse mb-6" style={{ color: '#ec4899', fontSize: '3rem' }} />
+          <FaHeart className="animate-pulse mb-6" style={{ color: '#111827', fontSize: '3rem' }} />
           <p className="font-bold mb-4 text-lg" style={{ color: '#1f2937' }}>
             {loadProgress < 100 ? `${loadText} ${loadProgress}%` : 'Selesai'}
           </p>
-          <div className="w-64 h-3 rounded-full overflow-hidden" style={{ backgroundColor: '#fce7f3' }}>
+          <div className="w-64 h-3 rounded-full overflow-hidden" style={{ backgroundColor: '#e5e7eb' }}>
             <div className="h-full" style={{
               width: `${loadProgress}%`,
-              background: 'linear-gradient(to right, #ec4899, #f43f5e, #ec4899)',
+              background: '#111827',
               transition: 'width 0.2s ease-out',
               borderRadius: '9999px',
             }} />
@@ -544,12 +544,12 @@ export default function Home() {
 
         {/* ===== HEADER ===== */}
         <div className="px-5 pt-6 pb-14 rounded-b-3xl shadow-lg relative overflow-hidden"
-          style={{ background: 'linear-gradient(to bottom right, #ec4899, #e11d48)', color: '#fff' }}>
+          style={{ background: '#111827', color: '#fff' }}>
           <div className="absolute top-0 right-0 w-32 h-32 bg-white-10 rounded-full" style={{ filter: 'blur(20px)', marginRight: '-16px', marginTop: '-16px' }} />
           <div className="flex justify-between items-center mb-4 relative" style={{ zIndex: 10 }}>
             <div>
-              <h1 className="text-lg font-bold flex items-center gap-2"><FaHeart style={{ color: '#fbcfe8' }} /> {data.settings.couple_name || 'Wedding Dream'}</h1>
-              <p className="text-xs" style={{ color: '#fce7f3', opacity: 0.9 }}>
+              <h1 className="text-lg font-bold flex items-center gap-2"><FaHeart style={{ color: '#d1d5db' }} /> {data.settings.couple_name || 'Wedding Dream'}</h1>
+              <p className="text-xs" style={{ color: '#e5e7eb', opacity: 0.9 }}>
                 {data.settings.wedding_date ? new Date(data.settings.wedding_date).toLocaleDateString('id-ID', { dateStyle: 'long' }) : 'Atur tanggal pernikahan'}
               </p>
             </div>
@@ -563,21 +563,21 @@ export default function Home() {
           <div className="flex justify-center gap-5 my-3 relative" style={{ zIndex: 10 }}>
             <div className="text-center">
               <div className="text-2xl font-bold">{countdown.days}</div>
-              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#fce7f3' }}>Hari</div>
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#e5e7eb' }}>Hari</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold">{countdown.hours}</div>
-              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#fce7f3' }}>Jam</div>
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#e5e7eb' }}>Jam</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold">{countdown.minutes}</div>
-              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#fce7f3' }}>Menit</div>
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#e5e7eb' }}>Menit</div>
             </div>
           </div>
 
           {/* Overall Progress */}
           <div className="text-center relative" style={{ zIndex: 10, marginTop: '0.5rem' }}>
-            <p className="text-xs" style={{ color: '#fce7f3' }}>
+            <p className="text-xs" style={{ color: '#e5e7eb' }}>
               {doneChecklist}/{totalChecklist} tugas selesai {totalChecklist > 0 ? `(${Math.round(checklistPct)}%)` : ''}
             </p>
             <div className="w-full bg-black-20 rounded-full h-2.5 mt-2 overflow-hidden">
@@ -593,10 +593,10 @@ export default function Home() {
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl whitespace-nowrap font-bold text-xs transition-all"
                 style={{
-                  backgroundColor: activeTab === tab.key ? '#ec4899' : '#fff',
+                  backgroundColor: activeTab === tab.key ? '#111827' : '#fff',
                   color: activeTab === tab.key ? '#fff' : '#6b7280',
                   border: activeTab === tab.key ? 'none' : '1px solid #f3f4f6',
-                  boxShadow: activeTab === tab.key ? '0 2px 8px rgba(236,72,153,0.3)' : 'none',
+                  boxShadow: activeTab === tab.key ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
                   scrollSnapAlign: 'start',
                 }}>
                 {tab.icon} {tab.label}
@@ -617,7 +617,7 @@ export default function Home() {
                   <p className="font-bold text-sm" style={{ color: '#374151' }}>Ringkasan Budget</p>
                   {target === 0 && (
                     <button onClick={() => setShowTargetModal(true)}
-                      className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ color: '#ec4899', backgroundColor: '#fdf2f8' }}>
+                      className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
                       Yuk, atur target
                     </button>
                   )}
@@ -629,7 +629,7 @@ export default function Home() {
                   </div>
                   <div className="p-3 rounded-xl text-center" style={{ backgroundColor: '#f9fafb' }}>
                     <p className="text-[10px] font-bold uppercase" style={{ color: '#9ca3af' }}>Target</p>
-                    <p className="font-bold text-lg" style={{ color: '#db2777' }}>{target > 0 ? formatRupiah(target) : '—'}</p>
+                    <p className="font-bold text-lg" style={{ color: '#111827' }}>{target > 0 ? formatRupiah(target) : '—'}</p>
                   </div>
                 </div>
                 {target > 0 && (
@@ -655,7 +655,7 @@ export default function Home() {
                 </div>
                 {data.budgets.length === 0 ? (
                   <button onClick={() => setShowAddBudget(true)}
-                    className="w-full py-3 rounded-xl text-xs font-bold" style={{ color: '#ec4899', backgroundColor: '#fdf2f8' }}>
+                    className="w-full py-3 rounded-xl text-xs font-bold" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
                     + Tambah Anggaran
                   </button>
                 ) : (
@@ -666,10 +666,10 @@ export default function Home() {
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between text-xs">
                             <span className="font-medium truncate" style={{ color: '#374151' }}>{b.item}</span>
-                            <span className="font-bold" style={{ color: '#db2777' }}>{Math.round(pct)}%</span>
+                            <span className="font-bold" style={{ color: '#111827' }}>{Math.round(pct)}%</span>
                           </div>
                           <div className="w-full h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: '#f3f4f6' }}>
-                            <div className="h-1.5 rounded-full" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: '#ec4899' }} />
+                            <div className="h-1.5 rounded-full" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: '#111827' }} />
                           </div>
                         </div>
                       </div>
@@ -677,7 +677,7 @@ export default function Home() {
                   })
                 )}
                 {data.budgets.length > 5 && (
-                  <button onClick={() => setActiveTab('budget')} className="w-full text-center text-xs font-bold mt-2" style={{ color: '#ec4899' }}>
+                  <button onClick={() => setActiveTab('budget')} className="w-full text-center text-xs font-bold mt-2" style={{ color: '#111827' }}>
                     Lihat semua ({data.budgets.length})
                   </button>
                 )}
@@ -690,7 +690,7 @@ export default function Home() {
                   <div key={t.id} className="flex justify-between items-center py-2 border-b" style={{ borderColor: '#f3f4f6' }}>
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="flex items-center justify-center text-xs"
-                        style={{ width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0, backgroundColor: t.type === 'income' ? '#d1fae5' : '#fce7f3', color: t.type === 'income' ? '#059669' : '#db2777' }}>
+                        style={{ width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0, backgroundColor: t.type === 'income' ? '#d1fae5' : '#e5e7eb', color: t.type === 'income' ? '#059669' : '#111827' }}>
                         {t.type === 'income' ? <FaArrowUp /> : <FaReceipt />}
                       </div>
                       <div className="min-w-0">
@@ -698,7 +698,7 @@ export default function Home() {
                         <p className="text-[10px]" style={{ color: '#9ca3af' }}>{formatDateShort(t.date)}</p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold flex-shrink-0" style={{ color: t.type === 'income' ? '#059669' : '#db2777' }}>
+                    <span className="text-xs font-bold flex-shrink-0" style={{ color: t.type === 'income' ? '#059669' : '#111827' }}>
                       {t.type === 'income' ? '+' : '-'}{formatRupiah(t.amount)}
                     </span>
                   </div>
@@ -716,7 +716,7 @@ export default function Home() {
               <div className="p-4 rounded-xl flex justify-between items-center" style={{ backgroundColor: '#f9fafb', border: '1px solid #f3f4f6' }}>
                 <div>
                   <p className="text-xs font-bold uppercase" style={{ color: '#6b7280' }}>Total Rencana</p>
-                  <p className="text-lg font-bold" style={{ color: '#be185d' }}>{formatRupiah(totalPlan)}</p>
+                  <p className="text-lg font-bold" style={{ color: '#111827' }}>{formatRupiah(totalPlan)}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-bold uppercase" style={{ color: '#6b7280' }}>Sudah Dibayar</p>
@@ -725,7 +725,7 @@ export default function Home() {
               </div>
 
               <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setShowAddBudget(true); }}
-                className="w-full py-3 rounded-xl text-xs font-bold" style={{ color: '#ec4899', backgroundColor: '#fdf2f8' }}>
+                className="w-full py-3 rounded-xl text-xs font-bold" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
                 + Tambah Anggaran
               </button>
 
@@ -739,8 +739,8 @@ export default function Home() {
                           <span className="font-bold text-sm truncate" style={{ color: '#374151' }}>{b.item}</span>
                           {b.party !== 'joint' && (
                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{
-                              backgroundColor: b.party === 'pria' ? '#dbeafe' : '#fce7f3',
-                              color: b.party === 'pria' ? '#2563eb' : '#db2777',
+                              backgroundColor: b.party === 'pria' ? '#dbeafe' : '#e5e7eb',
+                              color: b.party === 'pria' ? '#2563eb' : '#111827',
                             }}>
                               {b.party === 'pria' ? 'Pria' : 'Wanita'}
                             </span>
@@ -751,7 +751,7 @@ export default function Home() {
                     </div>
                     <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#f3f4f6' }}>
                       <div className="h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: '#ec4899' }} />
+                        style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: '#111827' }} />
                     </div>
                     <div className="flex justify-between mt-1 text-[10px]" style={{ color: '#9ca3af' }}>
                       <span>Dibayar: {formatRupiah(b.paid)}</span>
@@ -767,17 +767,17 @@ export default function Home() {
           {activeTab === 'checklist' && (
             <div className="space-y-3">
               {/* Motivation */}
-              <div className="p-3 rounded-xl" style={{ backgroundColor: '#fdf2f8', border: '1px solid #fce7f3' }}>
+              <div className="p-3 rounded-xl" style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{mot.emoji}</span>
                   <div>
-                    <p className="font-bold text-sm" style={{ color: '#be185d' }}>{mot.text}</p>
+                    <p className="font-bold text-sm" style={{ color: '#111827' }}>{mot.text}</p>
                     <p className="text-xs" style={{ color: '#6b7280' }}>{doneChecklist}/{totalChecklist} selesai ({Math.round(checklistPct)}%)</p>
                   </div>
                 </div>
-                <div className="w-full h-2 rounded-full mt-2 overflow-hidden" style={{ backgroundColor: '#fce7f3' }}>
+                <div className="w-full h-2 rounded-full mt-2 overflow-hidden" style={{ backgroundColor: '#e5e7eb' }}>
                   <div className="h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min(checklistPct, 100)}%`, backgroundColor: '#ec4899' }} />
+                    style={{ width: `${Math.min(checklistPct, 100)}%`, backgroundColor: '#111827' }} />
                 </div>
               </div>
 
@@ -795,7 +795,7 @@ export default function Home() {
                 </button>
                 <button onClick={() => setShowAddChecklistItem(true)}
                   className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                    backgroundColor: '#ec4899', color: '#fff' }}>
+                    backgroundColor: '#111827', color: '#fff' }}>
                   + Tambah Data
                 </button>
               </div>
@@ -815,7 +815,7 @@ export default function Home() {
                       className="w-full flex items-center justify-between p-3 text-left" style={{ backgroundColor: '#f9fafb' }}>
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="font-bold text-sm truncate" style={{ color: '#374151' }}>{cat.name}</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#fce7f3', color: '#db2777' }}>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#e5e7eb', color: '#111827' }}>
                           {done}/{items.length}
                         </span>
                       </div>
@@ -829,8 +829,8 @@ export default function Home() {
                               onChange={() => handleToggleChecklist(item.id, item.completed)}
                               style={{
                                 WebkitAppearance: 'none', appearance: 'none', width: '22px', height: '22px',
-                                border: '2px solid ' + (item.completed ? '#ec4899' : '#f9a8d4'),
-                                borderRadius: '6px', backgroundColor: item.completed ? '#ec4899' : 'transparent',
+                                border: '2px solid ' + (item.completed ? '#111827' : '#d1d5db'),
+                                borderRadius: '6px', backgroundColor: item.completed ? '#111827' : 'transparent',
                                 cursor: 'pointer', flexShrink: 0,
                               }} />
                             {item.completed && <FaCheckCircle className="absolute pointer-events-none" style={{ color: '#fff', width: '22px', height: '22px', padding: '3px' }} />}
@@ -842,8 +842,8 @@ export default function Home() {
                               <div className="flex gap-1 mt-0.5">
                                 {item.assigned_to !== 'joint' && (
                                   <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{
-                                    backgroundColor: item.assigned_to === 'pria' ? '#dbeafe' : '#fce7f3',
-                                    color: item.assigned_to === 'pria' ? '#2563eb' : '#db2777',
+                                    backgroundColor: item.assigned_to === 'pria' ? '#dbeafe' : '#e5e7eb',
+                                    color: item.assigned_to === 'pria' ? '#2563eb' : '#111827',
                                   }}>
                                     {item.assigned_to === 'pria' ? 'Pria' : 'Wanita'}
                                   </span>
@@ -875,10 +875,10 @@ export default function Home() {
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
                       className="p-2 rounded-xl text-xs outline-none"
-                      style={{ border: '1px solid #fce7f3', color: '#374151', width: '150px' }}
+                      style={{ border: '1px solid #e5e7eb', color: '#374151', width: '150px' }}
                     />
                     <button onClick={handleAddCategory}
-                      className="text-xs font-bold px-3 py-2 rounded-xl" style={{ backgroundColor: '#ec4899', color: '#fff' }}>
+                      className="text-xs font-bold px-3 py-2 rounded-xl" style={{ backgroundColor: '#111827', color: '#fff' }}>
                       Tambah
                     </button>
                   </div>
@@ -900,7 +900,7 @@ export default function Home() {
                   </div>
                   <div className="p-2 rounded-lg text-center" style={{ backgroundColor: '#fff' }}>
                     <p className="text-[10px] font-bold" style={{ color: '#9ca3af' }}>Total Biaya</p>
-                    <p className="font-bold text-lg" style={{ color: '#db2777' }}>{formatRupiah(engagementTotalActual)}</p>
+                    <p className="font-bold text-lg" style={{ color: '#111827' }}>{formatRupiah(engagementTotalActual)}</p>
                   </div>
                 </div>
               </div>
@@ -918,9 +918,9 @@ export default function Home() {
                         <p className="text-[10px] font-bold text-center" style={{ color: '#2563eb' }}>Pria</p>
                         <p className="text-xs font-bold text-center" style={{ color: '#1e40af' }}>{formatRupiah(pria)}</p>
                       </div>
-                      <div className="flex-1 p-2 rounded-lg" style={{ backgroundColor: '#fce7f3' }}>
-                        <p className="text-[10px] font-bold text-center" style={{ color: '#db2777' }}>Wanita</p>
-                        <p className="text-xs font-bold text-center" style={{ color: '#be185d' }}>{formatRupiah(wanita)}</p>
+                      <div className="flex-1 p-2 rounded-lg" style={{ backgroundColor: '#e5e7eb' }}>
+                        <p className="text-[10px] font-bold text-center" style={{ color: '#111827' }}>Wanita</p>
+                        <p className="text-xs font-bold text-center" style={{ color: '#111827' }}>{formatRupiah(wanita)}</p>
                       </div>
                       <div className="flex-1 p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
                         <p className="text-[10px] font-bold text-center" style={{ color: '#6b7280' }}>Total</p>
@@ -936,7 +936,7 @@ export default function Home() {
                 {(['all', 'pria', 'wanita', 'joint'] as const).map(p => (
                   <button key={p} onClick={() => setPartyFilter(p)}
                     className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                      backgroundColor: partyFilter === p ? '#ec4899' : '#fff',
+                      backgroundColor: partyFilter === p ? '#111827' : '#fff',
                       color: partyFilter === p ? '#fff' : '#6b7280',
                       border: partyFilter === p ? 'none' : '1px solid #f3f4f6',
                     }}>
@@ -944,7 +944,7 @@ export default function Home() {
                   </button>
                 ))}
                 <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setFormStatus('planned'); setShowAddEngagement(true); }}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-auto" style={{ backgroundColor: '#ec4899', color: '#fff' }}>
+                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-auto" style={{ backgroundColor: '#111827', color: '#fff' }}>
                   + Tambah
                 </button>
               </div>
@@ -962,8 +962,8 @@ export default function Home() {
                         </span>
                         {item.party !== 'joint' && (
                           <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
-                            backgroundColor: item.party === 'pria' ? '#dbeafe' : '#fce7f3',
-                            color: item.party === 'pria' ? '#2563eb' : '#db2777',
+                            backgroundColor: item.party === 'pria' ? '#dbeafe' : '#e5e7eb',
+                            color: item.party === 'pria' ? '#2563eb' : '#111827',
                           }}>
                             {item.party === 'pria' ? 'Pria' : 'Wanita'}
                           </span>
@@ -1020,7 +1020,7 @@ export default function Home() {
                   </div>
                   <div className="p-2 rounded-lg text-center" style={{ backgroundColor: '#fff' }}>
                     <p className="text-[10px] font-bold" style={{ color: '#9ca3af' }}>Total Biaya</p>
-                    <p className="font-bold text-lg" style={{ color: '#db2777' }}>{formatRupiah(seserahanTotalActual)}</p>
+                    <p className="font-bold text-lg" style={{ color: '#111827' }}>{formatRupiah(seserahanTotalActual)}</p>
                   </div>
                 </div>
               </div>
@@ -1051,7 +1051,7 @@ export default function Home() {
                 {(['all', 'pria', 'wanita', 'joint'] as const).map(p => (
                   <button key={p} onClick={() => setPartyFilter(p)}
                     className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                      backgroundColor: partyFilter === p ? '#ec4899' : '#fff',
+                      backgroundColor: partyFilter === p ? '#111827' : '#fff',
                       color: partyFilter === p ? '#fff' : '#6b7280',
                       border: partyFilter === p ? 'none' : '1px solid #f3f4f6',
                     }}>
@@ -1059,7 +1059,7 @@ export default function Home() {
                   </button>
                 ))}
                 <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setFormStatus('planned'); setShowAddSeserahan(true); }}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-auto" style={{ backgroundColor: '#ec4899', color: '#fff' }}>
+                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-auto" style={{ backgroundColor: '#111827', color: '#fff' }}>
                   + Tambah
                 </button>
               </div>
@@ -1077,8 +1077,8 @@ export default function Home() {
                         </span>
                         {item.party !== 'joint' && (
                           <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
-                            backgroundColor: item.party === 'pria' ? '#dbeafe' : '#fce7f3',
-                            color: item.party === 'pria' ? '#2563eb' : '#db2777',
+                            backgroundColor: item.party === 'pria' ? '#dbeafe' : '#e5e7eb',
+                            color: item.party === 'pria' ? '#2563eb' : '#111827',
                           }}>
                             {item.party === 'pria' ? 'Pria' : 'Wanita'}
                           </span>
@@ -1129,7 +1129,7 @@ export default function Home() {
                 <div className="flex justify-between items-center mb-2">
                   <p className="font-bold text-sm" style={{ color: '#374151' }}>Tabungan Bersama</p>
                   <button onClick={() => { setFormAmount(target.toString()); setShowTargetModal(true); }}
-                    className="text-[10px] font-bold px-3 py-1.5 rounded-full" style={{ color: '#ec4899', backgroundColor: '#fdf2f8' }}>
+                    className="text-[10px] font-bold px-3 py-1.5 rounded-full" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
                     Ubah Target
                   </button>
                 </div>
@@ -1144,7 +1144,7 @@ export default function Home() {
                       <span className="font-bold" style={{ color: '#6b7280' }}>
                         Sisa: {formatRupiah(savingsNeeded)}
                       </span>
-                      <span className="font-bold" style={{ color: '#db2777' }}>
+                      <span className="font-bold" style={{ color: '#111827' }}>
                         Target: {formatRupiah(target)}
                       </span>
                     </div>
@@ -1159,14 +1159,14 @@ export default function Home() {
                   {QUICK_SELECT.map(qty => (
                     <button key={qty} onClick={() => handleAddDeposit(qty)}
                       className="py-3 rounded-xl font-bold text-sm transition-all"
-                      style={{ backgroundColor: '#fdf2f8', color: '#db2777', border: '1px solid #fce7f3' }}>
+                      style={{ backgroundColor: '#f9fafb', color: '#111827', border: '1px solid #e5e7eb' }}>
                       {formatRupiah(qty)}
                     </button>
                   ))}
                 </div>
                 <button onClick={() => { setFormAmount(''); setFormDesc(''); setShowDepositModal(true); }}
                   className="w-full py-3 mt-3 rounded-xl font-bold text-sm"
-                  style={{ backgroundColor: '#ec4899', color: '#fff' }}>
+                  style={{ backgroundColor: '#111827', color: '#fff' }}>
                   + Atur Nominal Lain
                 </button>
               </div>
@@ -1198,7 +1198,7 @@ export default function Home() {
                 <button onClick={() => setTimelineView('calendar')}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all"
                   style={{
-                    backgroundColor: timelineView === 'calendar' ? '#ec4899' : '#fff',
+                    backgroundColor: timelineView === 'calendar' ? '#111827' : '#fff',
                     color: timelineView === 'calendar' ? '#fff' : '#6b7280',
                     border: timelineView === 'calendar' ? 'none' : '1px solid #f3f4f6',
                   }}>
@@ -1207,7 +1207,7 @@ export default function Home() {
                 <button onClick={() => setTimelineView('gantt')}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all"
                   style={{
-                    backgroundColor: timelineView === 'gantt' ? '#ec4899' : '#fff',
+                    backgroundColor: timelineView === 'gantt' ? '#111827' : '#fff',
                     color: timelineView === 'gantt' ? '#fff' : '#6b7280',
                     border: timelineView === 'gantt' ? 'none' : '1px solid #f3f4f6',
                   }}>
@@ -1232,7 +1232,7 @@ export default function Home() {
                     });
 
                   const catColors: Record<string, string> = {
-                    Vendor: '#ec4899', Konsep: '#f59e0b', Perhiasan: '#8b5cf6',
+                    Vendor: '#111827', Konsep: '#f59e0b', Perhiasan: '#8b5cf6',
                     Busana: '#06b6d4', Admin: '#3b82f6', Keuangan: '#10b981',
                     Acara: '#ef4444', Barang: '#f97316', Digital: '#6366f1', Personal: '#14b8a6',
                   };
@@ -1275,7 +1275,7 @@ export default function Home() {
                                 <span className="text-[11px] font-bold inline-flex items-center justify-center"
                                   style={{
                                     width: '22px', height: '22px', borderRadius: '50%',
-                                    backgroundColor: isToday ? '#ec4899' : 'transparent',
+                                    backgroundColor: isToday ? '#111827' : 'transparent',
                                     color: isToday ? '#fff' : isPast ? '#d1d5db' : '#374151',
                                   }}>
                                   {day}
@@ -1338,13 +1338,13 @@ export default function Home() {
                   };
 
                   const catGanttColors: Record<string, string> = {
-                    Vendor: '#fce7f3', Konsep: '#fef3c7', Perhiasan: '#ede9fe',
+                    Vendor: '#e5e7eb', Konsep: '#fef3c7', Perhiasan: '#ede9fe',
                     Busana: '#cffafe', Admin: '#dbeafe', Keuangan: '#d1fae5',
                     Acara: '#fee2e2', Barang: '#fed7aa', Digital: '#e0e7ff', Personal: '#ccfbf1',
                   };
 
                   const barCatColors: Record<string, string> = {
-                    Vendor: '#ec4899', Konsep: '#f59e0b', Perhiasan: '#8b5cf6',
+                    Vendor: '#111827', Konsep: '#f59e0b', Perhiasan: '#8b5cf6',
                     Busana: '#06b6d4', Admin: '#3b82f6', Keuangan: '#10b981',
                     Acara: '#ef4444', Barang: '#f97316', Digital: '#6366f1', Personal: '#14b8a6',
                   };
@@ -1414,9 +1414,9 @@ export default function Home() {
       {/* ===== FLOATING CASH CARD ===== */}
       <div className="fixed bottom-24 left-0 right-0 flex justify-center px-4" style={{ zIndex: 30, pointerEvents: 'none' }}>
         <div className="w-full max-w-md" style={{ pointerEvents: 'auto' }}>
-          <div className="safe-blur p-3 rounded-2xl shadow-lg flex justify-between items-center mx-1" style={{ border: '1px solid #fbcfe8' }}>
+          <div className="safe-blur p-3 rounded-2xl shadow-lg flex justify-between items-center mx-1" style={{ border: '1px solid #e5e7eb' }}>
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#fce7f3', color: '#ec4899', flexShrink: 0 }}>
+              <div className="flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#e5e7eb', color: '#111827', flexShrink: 0 }}>
                 <FaWallet />
               </div>
               <div>
@@ -1431,16 +1431,16 @@ export default function Home() {
       {/* ===== BOTTOM ACTION BUTTONS ===== */}
       <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-safe" style={{ zIndex: 40 }}>
         <div className="w-full max-w-md px-4 pb-4 pt-2"
-          style={{ background: 'linear-gradient(to top, #fdf2f8, rgba(253,242,248,0.95), transparent)' }}>
+          style={{ background: 'linear-gradient(to top, #f9fafb, rgba(249,250,251,0.95), transparent)' }}>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => { setShowDepositModal(true); setFormAmount(''); setFormDesc(''); }}
               className="py-3.5 rounded-2xl shadow-lg font-bold flex justify-center items-center gap-2 text-sm"
-              style={{ backgroundColor: '#10b981', color: '#fff', minHeight: '48px' }}>
+              style={{ backgroundColor: '#111827', color: '#fff', minHeight: '48px' }}>
               <FaPlusCircle /> Nabung
             </button>
             <button onClick={() => { setShowExpenseModal(true); setFormDesc(''); setFormAmount(''); }}
               className="py-3.5 rounded-2xl shadow-lg font-bold flex justify-center items-center gap-2 text-sm"
-              style={{ backgroundColor: '#db2777', color: '#fff', minHeight: '48px' }}>
+              style={{ backgroundColor: '#374151', color: '#fff', minHeight: '48px' }}>
               <FaReceipt /> Bayar
             </button>
           </div>
@@ -1457,17 +1457,17 @@ export default function Home() {
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Setor Tabungan</h3>
           <input type="number" placeholder="Jumlah (Rp)"
             className="w-full p-3.5 rounded-xl mb-4 outline-none font-bold text-lg"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
             value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
           <input type="text" placeholder="Keterangan (opsional)"
             className="w-full p-3.5 rounded-xl mb-6 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
             value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
           <div className="flex gap-3">
             <button onClick={() => setShowDepositModal(false)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6', minHeight: '48px' }}>Batal</button>
             <button onClick={() => handleAddDeposit(parseInt(formAmount) || 0, formDesc)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#10b981', minHeight: '48px' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827', minHeight: '48px' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1478,13 +1478,13 @@ export default function Home() {
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>{target === 0 ? 'Atur Target' : 'Ubah Target'}</h3>
           <input type="number" placeholder="Target (Rp)"
             className="w-full p-3.5 rounded-xl mb-6 outline-none font-bold text-lg"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#db2777', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#111827', backgroundColor: '#fff', WebkitAppearance: 'none' }}
             value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
           <div className="flex gap-3">
             <button onClick={() => setShowTargetModal(false)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6', minHeight: '48px' }}>Batal</button>
             <button onClick={handleUpdateTarget} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#ec4899', minHeight: '48px' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827', minHeight: '48px' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1494,24 +1494,24 @@ export default function Home() {
         <BottomSheet onClose={() => setShowExpenseModal(false)}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Bayar Vendor</h3>
           <select className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', backgroundColor: 'rgba(253,242,248,0.5)', WebkitAppearance: 'menulist' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#f9fafb', WebkitAppearance: 'menulist' }}
             value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
             <option value="Lainnya">Lainnya</option>
             {data.budgets.map(b => <option key={b.id} value={b.item}>{b.item}</option>)}
           </select>
           <input type="text" placeholder="Keterangan"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
             value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
           <input type="number" placeholder="Jumlah (Rp)"
             className="w-full p-3.5 rounded-xl mb-6 outline-none font-bold text-lg"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
             value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
           <div className="flex gap-3">
             <button onClick={() => setShowExpenseModal(false)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6', minHeight: '48px' }}>Batal</button>
             <button onClick={handleAddExpense} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#db2777', minHeight: '48px' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827', minHeight: '48px' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1521,17 +1521,17 @@ export default function Home() {
         <BottomSheet onClose={() => setShowAddChecklistItem(false)}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Item Checklist</h3>
           <select className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
             value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
             <option value="">Pilih Kategori</option>
             {data.checklistCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <input type="text" placeholder="Judul tugas"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
             value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
           <select className="w-full p-3.5 rounded-xl mb-6 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
             value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
             <option value="joint">Bersama</option>
             <option value="pria">Pihak Pria</option>
@@ -1541,7 +1541,7 @@ export default function Home() {
             <button onClick={() => setShowAddChecklistItem(false)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
             <button onClick={handleAddChecklistItem} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#ec4899' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1552,32 +1552,32 @@ export default function Home() {
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Item Engagement</h3>
           <input type="text" placeholder="Nama item"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formItem} onChange={(e) => setFormItem(e.target.value)} />
           <input type="text" placeholder="Kategori"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
           <div className="grid grid-cols-2 gap-2 mb-3">
             <input type="number" placeholder="Budget (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
             <input type="number" placeholder="Realisasi (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formActual} onChange={(e) => setFormActual(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-2 mb-3">
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
               <option value="joint">Bersama</option>
               <option value="pria">Pria</option>
               <option value="wanita">Wanita</option>
             </select>
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
               <option value="planned">Planned</option>
               <option value="ordered">Order</option>
@@ -1589,7 +1589,7 @@ export default function Home() {
             <button onClick={() => setShowAddEngagement(false)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
             <button onClick={handleAddEngagement} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#ec4899' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1600,32 +1600,32 @@ export default function Home() {
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Item Seserahan</h3>
           <input type="text" placeholder="Nama item"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formItem} onChange={(e) => setFormItem(e.target.value)} />
           <input type="text" placeholder="Kategori"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
           <div className="grid grid-cols-2 gap-2 mb-3">
             <input type="number" placeholder="Budget (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
             <input type="number" placeholder="Realisasi (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formActual} onChange={(e) => setFormActual(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-2 mb-3">
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
               <option value="joint">Bersama</option>
               <option value="pria">Pria</option>
               <option value="wanita">Wanita</option>
             </select>
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
               <option value="planned">Planned</option>
               <option value="ordered">Order</option>
@@ -1637,7 +1637,7 @@ export default function Home() {
             <button onClick={() => setShowAddSeserahan(false)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
             <button onClick={handleAddSeserahan} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#ec4899' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1648,32 +1648,32 @@ export default function Home() {
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Edit Engagement Item</h3>
           <input type="text" placeholder="Nama item"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formItem} onChange={(e) => setFormItem(e.target.value)} />
           <input type="text" placeholder="Kategori"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
           <div className="grid grid-cols-2 gap-2 mb-3">
             <input type="number" placeholder="Budget (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
             <input type="number" placeholder="Realisasi (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formActual} onChange={(e) => setFormActual(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-2 mb-6">
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
               <option value="joint">Bersama</option>
               <option value="pria">Pria</option>
               <option value="wanita">Wanita</option>
             </select>
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
               <option value="planned">Planned</option>
               <option value="ordered">Order</option>
@@ -1685,7 +1685,7 @@ export default function Home() {
             <button onClick={() => setShowEditEngagement(null)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
             <button onClick={handleUpdateEngagement} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#ec4899' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1696,32 +1696,32 @@ export default function Home() {
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Edit Seserahan Item</h3>
           <input type="text" placeholder="Nama item"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formItem} onChange={(e) => setFormItem(e.target.value)} />
           <input type="text" placeholder="Kategori"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
           <div className="grid grid-cols-2 gap-2 mb-3">
             <input type="number" placeholder="Budget (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
             <input type="number" placeholder="Realisasi (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formActual} onChange={(e) => setFormActual(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-2 mb-6">
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
               <option value="joint">Bersama</option>
               <option value="pria">Pria</option>
               <option value="wanita">Wanita</option>
             </select>
             <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
               value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
               <option value="planned">Planned</option>
               <option value="ordered">Order</option>
@@ -1733,7 +1733,7 @@ export default function Home() {
             <button onClick={() => setShowEditSeserahan(null)} className="flex-1 py-3.5 rounded-xl font-bold"
               style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
             <button onClick={handleUpdateSeserahan} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#ec4899' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
@@ -1744,24 +1744,24 @@ export default function Home() {
           <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Anggaran</h3>
           <input type="text" placeholder="Nama item (e.g. Venue, MUA)"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formItem} onChange={(e) => setFormItem(e.target.value)} />
           <input type="text" placeholder="Kategori"
             className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
             value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
           <div className="grid grid-cols-2 gap-2 mb-3">
             <input type="number" placeholder="Rencana (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
             <input type="number" placeholder="Dibayar (Rp)"
               className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
+              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
               value={formActual} onChange={(e) => setFormActual(e.target.value)} />
           </div>
           <select className="w-full p-3.5 rounded-xl mb-6 outline-none text-sm"
-            style={{ border: '2px solid #fce7f3', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
+            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
             value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
             <option value="joint">Bersama</option>
             <option value="pria">Pria</option>
@@ -1783,7 +1783,7 @@ export default function Home() {
               await silentRefresh();
               setShowAddBudget(false);
             }} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#ec4899' }}>Simpan</button>
+              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
           </div>
         </BottomSheet>
       )}
