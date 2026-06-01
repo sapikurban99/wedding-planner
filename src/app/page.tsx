@@ -186,6 +186,7 @@ export default function Home() {
   // Tab state
   const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
   const [partyFilter, setPartyFilter] = useState<PartyFilter>('all');
+  const [inviteCategoryFilter, setInviteCategoryFilter] = useState<string>('all');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [timelineView, setTimelineView] = useState<TimelineView>('calendar');
   const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
@@ -323,7 +324,25 @@ export default function Home() {
   const bridePax = brideInvites.reduce((a, i) => a + i.pax, 0);
   const totalPax = groomPax + bridePax;
   const totalQuota = groomQuota + brideQuota;
-  const filteredInvites = data.invitations.filter(i => partyFilter === 'all' || i.party === partyFilter);
+  const inviteCat = (i: Invitation) => i.category?.trim() || 'Lainnya';
+  // Stats per kategori ikut filter sisi (pria/wanita) yang sedang aktif.
+  const invitesByParty = data.invitations.filter(i => partyFilter === 'all' || i.party === partyFilter);
+  const inviteCategoryStats = Array.from(new Set(invitesByParty.map(inviteCat)))
+    .map(cat => {
+      const items = invitesByParty.filter(i => inviteCat(i) === cat);
+      return {
+        cat,
+        count: items.length,
+        pax: items.reduce((a, i) => a + i.pax, 0),
+        groom: items.filter(i => i.party === 'pria').reduce((a, i) => a + i.pax, 0),
+        bride: items.filter(i => i.party === 'wanita').reduce((a, i) => a + i.pax, 0),
+      };
+    })
+    .sort((a, b) => b.pax - a.pax);
+  const filteredInvites = data.invitations.filter(i =>
+    (partyFilter === 'all' || i.party === partyFilter) &&
+    (inviteCategoryFilter === 'all' || inviteCat(i) === inviteCategoryFilter)
+  );
 
   // === Estimasi tabungan bulanan (target tercapai H-7 sebelum hari H) ===
   // Basis: sisa = target dikurangi yang sudah dibayar (totalPaid dari Budget).
@@ -541,7 +560,7 @@ export default function Home() {
   const handleOpenAddInvite = (party: 'pria' | 'wanita' = 'pria') => {
     setFormItem('');
     setFormPax('1');
-    setFormCategory('');
+    setFormCategory(inviteCategoryFilter !== 'all' && inviteCategoryFilter !== 'Lainnya' ? inviteCategoryFilter : '');
     setFormParty(party);
     setShowAddInvite(true);
   };
@@ -1323,6 +1342,37 @@ export default function Home() {
                     );
                   })}
                 </div>
+
+                {/* Stats per kategori (klik untuk filter) */}
+                {inviteCategoryStats.length > 0 && (
+                  <div className="brutalist-card p-6 bg-brut-white">
+                    <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+                      <p className="font-black text-lg uppercase tracking-tight flex items-center gap-2"><FaChartBar /> Stats Per Kategori</p>
+                      {inviteCategoryFilter !== 'all' && (
+                        <button onClick={() => setInviteCategoryFilter('all')} className="brutalist-button brutalist-button-white !py-1 !px-3 !text-[10px] uppercase">
+                          × RESET FILTER
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {inviteCategoryStats.map(s => {
+                        const active = inviteCategoryFilter === s.cat;
+                        return (
+                          <button key={s.cat} onClick={() => setInviteCategoryFilter(active ? 'all' : s.cat)}
+                            className={`border-3 border-brut-black p-3 shadow-brutalist-sm text-left transition-all active:translate-y-0.5 ${active ? 'bg-brut-yellow -translate-y-0.5' : 'bg-brut-white hover:bg-brut-yellow/40'}`}>
+                            <p className="font-black text-xs uppercase truncate mb-1">{s.cat}</p>
+                            <p className="font-black text-2xl tracking-tighter leading-none">{s.pax}<span className="text-[10px] font-bold text-gray-400 uppercase"> pax</span></p>
+                            <div className="flex gap-1 mt-2">
+                              {partyFilter !== 'wanita' && <span className="text-[8px] font-black px-1 py-0.5 border-2 border-brut-black bg-brut-cyan uppercase">A {s.groom}</span>}
+                              {partyFilter !== 'pria' && <span className="text-[8px] font-black px-1 py-0.5 border-2 border-brut-black bg-brut-pink uppercase">Q {s.bride}</span>}
+                              <span className="text-[8px] font-black px-1 py-0.5 border-2 border-brut-black bg-brut-white text-gray-500 uppercase">{s.count}×</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Filter + tambah */}
                 <div className="flex flex-wrap gap-3 items-center justify-between">
