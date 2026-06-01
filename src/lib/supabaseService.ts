@@ -2,7 +2,7 @@ import { supabase } from './supabaseClient';
 import type {
   AppData, AppSettings, Transaction, BudgetItem,
   ChecklistCategory, ChecklistItem, EngagementItem,
-  SeserahanItem, SavingsDeposit, TimelineEvent
+  SeserahanItem, SavingsDeposit, TimelineEvent, Invitation
 } from '../type';
 
 // ===================== SETTINGS =====================
@@ -267,9 +267,45 @@ export async function addSavingsDeposit(deposit: Omit<SavingsDeposit, 'id'>) {
   if (error) throw error;
 }
 
+// ===================== INVITATIONS =====================
+export async function getInvitations(): Promise<Invitation[]> {
+  const { data, error } = await supabase
+    .from('wedding_plan_invitations')
+    .select('*')
+    .order('created_at');
+  if (error) throw error;
+  return data;
+}
+
+export async function addInvitation(item: Omit<Invitation, 'id'>) {
+  const { data, error } = await supabase
+    .from('wedding_plan_invitations')
+    .insert([{ ...item }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateInvitation(id: string, updates: Partial<Invitation>) {
+  const { error } = await supabase
+    .from('wedding_plan_invitations')
+    .update(updates)
+    .eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteInvitation(id: string) {
+  const { error } = await supabase
+    .from('wedding_plan_invitations')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
 // ===================== FETCH ALL =====================
 export async function fetchAllData(): Promise<AppData> {
-  const [settings, transactions, budgets, timeline, checklistCategories, checklistItems, engagementItems, seserahanItems, savingsDeposits] = await Promise.all([
+  const [settings, transactions, budgets, timeline, checklistCategories, checklistItems, engagementItems, seserahanItems, savingsDeposits, invitations] = await Promise.all([
     getSettings(),
     getTransactions(),
     getBudgets(),
@@ -279,6 +315,7 @@ export async function fetchAllData(): Promise<AppData> {
     getEngagementItems(),
     getSeserahanItems(),
     getSavingsDeposits(),
+    getInvitations(),
   ]);
-  return { settings, transactions, budgets, timeline, checklistCategories, checklistItems, engagementItems, seserahanItems, savingsDeposits };
+  return { settings, transactions, budgets, timeline, checklistCategories, checklistItems, engagementItems, seserahanItems, savingsDeposits, invitations };
 }

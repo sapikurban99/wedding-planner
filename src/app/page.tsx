@@ -6,12 +6,13 @@ import {
   FaCheckCircle, FaLock, FaEye, FaEyeSlash, FaEdit, FaTrash,
   FaChevronDown, FaChevronRight, FaRing, FaGift,
   FaPiggyBank, FaClipboardList, FaArrowUp,
-  FaCalendarAlt, FaChartBar, FaChevronLeft, FaChevronRight as FaChevronRightIcon
+  FaCalendarAlt, FaChartBar, FaChevronLeft, FaChevronRight as FaChevronRightIcon,
+  FaEnvelopeOpenText, FaUsers
 } from 'react-icons/fa';
 import confetti from 'canvas-confetti';
 import * as sb from '../lib/supabaseService';
 import type {
-  AppData, EngagementItem, SeserahanItem
+  AppData, EngagementItem, SeserahanItem, Invitation
 } from '../type';
 
 const formatRupiah = (n: number) =>
@@ -25,7 +26,7 @@ const formatDateShort = (s: string) => {
 
 const QUICK_SELECT = [100000, 250000, 500000, 1000000];
 
-type MainTab = 'dashboard' | 'checklist' | 'engagement' | 'seserahan' | 'savings' | 'budget' | 'timeline';
+type MainTab = 'dashboard' | 'checklist' | 'engagement' | 'seserahan' | 'savings' | 'budget' | 'timeline' | 'invitations';
 type TimelineView = 'calendar' | 'gantt';
 
 type PartyChoice = 'pria' | 'wanita' | 'joint';
@@ -58,6 +59,7 @@ const TAB_CONFIG: { key: MainTab; label: string; icon: React.ReactNode }[] = [
   { key: 'checklist', label: 'Tasks', icon: <FaClipboardList /> },
   { key: 'engagement', label: 'Ring', icon: <FaRing /> },
   { key: 'seserahan', label: 'Gifts', icon: <FaGift /> },
+  { key: 'invitations', label: 'Tamu', icon: <FaEnvelopeOpenText /> },
   { key: 'savings', label: 'Bank', icon: <FaPiggyBank /> },
   { key: 'timeline', label: 'Plan', icon: <FaCalendarAlt /> },
 ];
@@ -164,7 +166,7 @@ export default function Home() {
   }, []);
 
   const [data, setData] = useState<AppData>({
-    settings: { id: 1, target_amount: 0, wedding_date: null, couple_name: 'Qisti & Aldi' },
+    settings: { id: 1, target_amount: 0, wedding_date: null, couple_name: 'Qisti & Aldi', groom_quota: 150, bride_quota: 150 },
     transactions: [],
     budgets: [],
     timeline: [],
@@ -173,6 +175,7 @@ export default function Home() {
     engagementItems: [],
     seserahanItems: [],
     savingsDeposits: [],
+    invitations: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -199,6 +202,9 @@ export default function Home() {
   const [showEditSeserahan, setShowEditSeserahan] = useState<SeserahanItem | null>(null);
   const [showEditEngagement, setShowEditEngagement] = useState<EngagementItem | null>(null);
   const [showAddBudget, setShowAddBudget] = useState(false);
+  const [showAddInvite, setShowAddInvite] = useState(false);
+  const [showEditInvite, setShowEditInvite] = useState<Invitation | null>(null);
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
 
   // Form state
   const [formAmount, setFormAmount] = useState('');
@@ -211,6 +217,9 @@ export default function Home() {
   const [formActual, setFormActual] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formDate, setFormDate] = useState('');
+  const [formPax, setFormPax] = useState('1');
+  const [formGroomQuota, setFormGroomQuota] = useState('');
+  const [formBrideQuota, setFormBrideQuota] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
 
   // Countdown
@@ -305,6 +314,17 @@ export default function Home() {
   const engagementTotalActual = data.engagementItems.reduce((a, i) => a + i.actual_amount, 0);
   const seserahanTotalActual = data.seserahanItems.reduce((a, i) => a + i.actual_amount, 0);
 
+  // === Pembagian undangan (Aldi/pria & Qisti/wanita) ===
+  const groomQuota = data.settings.groom_quota ?? 150;
+  const brideQuota = data.settings.bride_quota ?? 150;
+  const groomInvites = data.invitations.filter(i => i.party === 'pria');
+  const brideInvites = data.invitations.filter(i => i.party === 'wanita');
+  const groomPax = groomInvites.reduce((a, i) => a + i.pax, 0);
+  const bridePax = brideInvites.reduce((a, i) => a + i.pax, 0);
+  const totalPax = groomPax + bridePax;
+  const totalQuota = groomQuota + brideQuota;
+  const filteredInvites = data.invitations.filter(i => partyFilter === 'all' || i.party === partyFilter);
+
   // === Estimasi tabungan bulanan (target tercapai H-7 sebelum hari H) ===
   // Basis: sisa = target dikurangi yang sudah dibayar (totalPaid dari Budget).
   // Tenggat = tanggal nikah dikurangi 7 hari.
@@ -366,13 +386,23 @@ export default function Home() {
 
   const handleAddExpense = async () => {
     if (!formDesc || !formAmount) return;
+    const amount = parseInt(formAmount) || 0;
     await sb.addTransaction({
       date: new Date().toISOString(),
       desc: formDesc,
-      amount: parseInt(formAmount),
+      amount,
       type: 'expense',
       category: formCategory,
     });
+    // Sinkronkan ke budget: kalau kategori = item budget, tambahkan ke `paid`.
+    const budget = data.budgets.find(b => b.item === formCategory);
+    if (budget) {
+      const newPaid = budget.paid + amount;
+      await sb.updateBudget(budget.id, {
+        paid: newPaid,
+        status: newPaid >= budget.plan ? 'paid' : 'planned',
+      });
+    }
     await silentRefresh();
     setShowExpenseModal(false);
     setFormDesc('');
@@ -505,6 +535,75 @@ export default function Home() {
     await sb.addChecklistCategory(newCategoryName.trim());
     setNewCategoryName('');
     await silentRefresh();
+  };
+
+  // ===== INVITATIONS =====
+  const handleOpenAddInvite = (party: 'pria' | 'wanita' = 'pria') => {
+    setFormItem('');
+    setFormPax('1');
+    setFormCategory('');
+    setFormParty(party);
+    setShowAddInvite(true);
+  };
+
+  const handleAddInvite = async () => {
+    if (!formItem.trim()) return;
+    await sb.addInvitation({
+      name: formItem.trim(),
+      pax: Math.max(1, parseInt(formPax) || 1),
+      party: formParty === 'wanita' ? 'wanita' : 'pria',
+      category: formCategory || undefined,
+      invited: false,
+    });
+    confetti({ particleCount: 80, spread: 90, origin: { y: 0.5 } });
+    await silentRefresh();
+    setShowAddInvite(false);
+  };
+
+  const handleOpenEditInvite = (item: Invitation) => {
+    setFormItem(item.name);
+    setFormPax(item.pax.toString());
+    setFormCategory(item.category || '');
+    setFormParty(item.party);
+    setShowEditInvite(item);
+  };
+
+  const handleUpdateInvite = async () => {
+    if (!showEditInvite || !formItem.trim()) return;
+    await sb.updateInvitation(showEditInvite.id, {
+      name: formItem.trim(),
+      pax: Math.max(1, parseInt(formPax) || 1),
+      party: formParty === 'wanita' ? 'wanita' : 'pria',
+      category: formCategory || undefined,
+    });
+    await silentRefresh();
+    setShowEditInvite(null);
+  };
+
+  const handleToggleInvited = async (item: Invitation) => {
+    await sb.updateInvitation(item.id, { invited: !item.invited });
+    await silentRefresh();
+  };
+
+  const handleDeleteInvite = async (id: string) => {
+    if (!confirm('HAPUS TAMU INI?')) return;
+    await sb.deleteInvitation(id);
+    await silentRefresh();
+  };
+
+  const handleOpenQuotaModal = () => {
+    setFormGroomQuota(groomQuota.toString());
+    setFormBrideQuota(brideQuota.toString());
+    setShowQuotaModal(true);
+  };
+
+  const handleUpdateQuota = async () => {
+    const g = parseInt(formGroomQuota);
+    const b = parseInt(formBrideQuota);
+    if (isNaN(g) || isNaN(b) || g < 0 || b < 0) return;
+    await sb.updateSettings({ groom_quota: g, bride_quota: b });
+    await silentRefresh();
+    setShowQuotaModal(false);
   };
 
   if (authenticated === null) return (
@@ -1175,6 +1274,107 @@ export default function Home() {
               </div>
             )}
 
+            {/* INVITATIONS TAB */}
+            {activeTab === 'invitations' && (
+              <div className="space-y-6">
+                {/* Total summary */}
+                <div className="brutalist-card p-6 bg-brut-white">
+                  <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+                    <p className="font-black text-2xl uppercase tracking-tighter flex items-center gap-2"><FaUsers /> Pembagian Undangan</p>
+                    <button onClick={handleOpenQuotaModal} className="brutalist-button brutalist-button-pink !py-2 !text-xs uppercase">EDIT KUOTA</button>
+                  </div>
+                  <div className="w-full h-14 bg-brut-black border-4 border-brut-black overflow-hidden relative shadow-brutalist-sm">
+                    <div className={`h-full transition-all duration-700 ${totalPax > totalQuota ? 'bg-red-500' : 'bg-brut-green'}`}
+                      style={{ width: `${totalQuota > 0 ? Math.min(totalPax / totalQuota * 100, 100) : 0}%` }} />
+                    <span className="absolute inset-0 flex items-center justify-center font-black text-xl text-white mix-blend-difference">{totalPax} / {totalQuota} PAX</span>
+                  </div>
+                </div>
+
+                {/* Dua sisi: Aldi (pria) & Qisti (wanita) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {[
+                    { party: 'pria' as const, name: 'ALDI', role: 'PRIA', pax: groomPax, quota: groomQuota, bg: 'bg-brut-cyan' },
+                    { party: 'wanita' as const, name: 'QISTI', role: 'WANITA', pax: bridePax, quota: brideQuota, bg: 'bg-brut-pink' },
+                  ].map(s => {
+                    const pct = s.quota > 0 ? s.pax / s.quota * 100 : 0;
+                    const over = s.pax > s.quota;
+                    const remaining = s.quota - s.pax;
+                    return (
+                      <div key={s.party} className={`brutalist-card p-6 ${s.bg}`}>
+                        <div className="flex justify-between items-center mb-4">
+                          <p className="font-black text-2xl uppercase tracking-tighter">{s.name}</p>
+                          <span className="text-[10px] font-black uppercase bg-brut-black text-white px-2 py-1 border-2 border-brut-black">{s.role}</span>
+                        </div>
+                        <div className="bg-brut-white border-4 border-brut-black p-4 shadow-brutalist mb-4 text-center">
+                          <p className="text-4xl font-black tracking-tighter">{s.pax} <span className="text-lg text-gray-400">/ {s.quota}</span></p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">PAX TERPAKAI</p>
+                        </div>
+                        <div className="w-full h-8 bg-brut-black border-3 border-brut-black overflow-hidden relative shadow-brutalist-sm">
+                          <div className={`h-full transition-all duration-700 ${over ? 'bg-red-500' : 'bg-brut-green'}`} style={{ width: `${Math.min(pct, 100)}%` }} />
+                          <span className="absolute inset-0 flex items-center justify-center font-black text-xs text-white mix-blend-difference">{Math.round(pct)}%</span>
+                        </div>
+                        <div className="mt-3 flex justify-between items-center gap-2">
+                          <button onClick={() => handleOpenAddInvite(s.party)} className="brutalist-button brutalist-button-white !py-1 !px-3 !text-[10px]">+ TAMBAH</button>
+                          <span className={`text-xs font-black uppercase px-2 py-1 border-2 border-brut-black shadow-brutalist-sm ${over ? 'bg-red-500 text-white' : 'bg-brut-white'}`}>
+                            {over ? `LEBIH ${Math.abs(remaining)}` : `SISA ${remaining}`} PAX
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Filter + tambah */}
+                <div className="flex flex-wrap gap-3 items-center justify-between">
+                  <div className="flex gap-2 p-1 border-3 border-brut-black bg-brut-white shadow-brutalist-sm">
+                    {(['all', 'pria', 'wanita'] as const).map(p => (
+                      <button key={p} onClick={() => setPartyFilter(p)}
+                        className={`px-3 py-1 font-black text-[10px] uppercase border-2 border-transparent transition-all ${
+                          partyFilter === p ? 'bg-brut-black text-white border-brut-black shadow-brutalist-sm' : 'hover:bg-brut-yellow'
+                        }`}>
+                        {p === 'all' ? 'SEMUA' : p === 'pria' ? 'ALDI' : 'QISTI'}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => handleOpenAddInvite()} className="brutalist-button brutalist-button-cyan !py-3 !text-sm uppercase">
+                    + TAMBAH TAMU
+                  </button>
+                </div>
+
+                {/* Daftar tamu */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {filteredInvites.map(item => (
+                    <div key={item.id} className="brutalist-card p-4 bg-brut-white flex items-center gap-3 hover:bg-brut-yellow transition-colors">
+                      <div className={`flex flex-col items-center justify-center w-14 h-14 border-3 border-brut-black shadow-brutalist-sm shrink-0 ${item.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'}`}>
+                        <span className="font-black text-xl leading-none">{item.pax}</span>
+                        <span className="text-[8px] font-black uppercase">PAX</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-black uppercase truncate">{item.name}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          <span className={`text-[9px] font-black px-1.5 py-0.5 border-2 border-brut-black uppercase ${item.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'}`}>{item.party === 'pria' ? 'ALDI' : 'QISTI'}</span>
+                          {item.category && <span className="text-[9px] font-black px-1.5 py-0.5 border-2 border-brut-black uppercase bg-brut-yellow">{item.category}</span>}
+                          <button onClick={() => handleToggleInvited(item)}
+                            className={`text-[9px] font-black px-1.5 py-0.5 border-2 border-brut-black uppercase ${item.invited ? 'bg-brut-green' : 'bg-white text-gray-400'}`}>
+                            {item.invited ? '✓ DISEBAR' : 'BELUM'}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button onClick={() => handleOpenEditInvite(item)} className="w-9 h-9 border-3 border-brut-black bg-brut-white hover:bg-brut-cyan flex items-center justify-center shadow-brutalist-sm"><FaEdit className="text-xs" /></button>
+                        <button onClick={() => handleDeleteInvite(item.id)} className="w-9 h-9 border-3 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm"><FaTrash className="text-xs" /></button>
+                      </div>
+                    </div>
+                  ))}
+                  {filteredInvites.length === 0 && (
+                    <div className="sm:col-span-2 brutalist-card p-16 bg-brut-white border-dashed text-center">
+                      <p className="text-xl font-black uppercase text-gray-300">BELUM ADA DATA TAMU</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* SAVINGS TAB */}
             {activeTab === 'savings' && (
               <div className="space-y-8">
@@ -1801,6 +2001,69 @@ export default function Home() {
                    setShowAddBudget(false);
                 }} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">ADD ENTRY</button>
              </div>
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* ADD / EDIT INVITATION MODAL */}
+      {(showAddInvite || showEditInvite) && (
+        <BottomSheet onClose={() => { setShowAddInvite(false); setShowEditInvite(null); }}>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">
+            {showEditInvite ? 'Edit Tamu' : 'Tambah Tamu'}
+          </h3>
+          <div className="space-y-4 text-brut-black">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">NAMA TAMU / KELUARGA</label>
+              <input type="text" placeholder="MIS. KELUARGA BUDI" className="w-full brutalist-input uppercase text-sm"
+                value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">JUMLAH PAX</label>
+                <input type="number" min="1" placeholder="1" className="w-full brutalist-input text-lg font-black"
+                  value={formPax} onChange={(e) => setFormPax(e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">SISI</label>
+                <select className="w-full brutalist-input text-sm font-black uppercase" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="pria">ALDI (PRIA)</option>
+                  <option value="wanita">QISTI (WANITA)</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">KATEGORI (OPSIONAL)</label>
+              <input type="text" placeholder="KELUARGA, TEMAN, KANTOR" className="w-full brutalist-input uppercase text-sm"
+                value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => { setShowAddInvite(false); setShowEditInvite(null); }} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={showEditInvite ? handleUpdateInvite : handleAddInvite} className="brutalist-button brutalist-button-cyan !py-4 font-black">SIMPAN</button>
+            </div>
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* QUOTA MODAL */}
+      {showQuotaModal && (
+        <BottomSheet onClose={() => setShowQuotaModal(false)}>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Edit Kuota Pax</h3>
+          <div className="space-y-4 text-brut-black">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">KUOTA ALDI (PRIA)</label>
+              <input type="number" min="0" placeholder="150" className="w-full brutalist-input text-lg font-black"
+                value={formGroomQuota} onChange={(e) => setFormGroomQuota(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">KUOTA QISTI (WANITA)</label>
+              <input type="number" min="0" placeholder="150" className="w-full brutalist-input text-lg font-black"
+                value={formBrideQuota} onChange={(e) => setFormBrideQuota(e.target.value)} />
+            </div>
+            <p className="text-[10px] font-bold text-gray-500 uppercase">Total kuota = {(parseInt(formGroomQuota) || 0) + (parseInt(formBrideQuota) || 0)} pax</p>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowQuotaModal(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={handleUpdateQuota} className="brutalist-button brutalist-button-cyan !py-4 font-black">SIMPAN</button>
+            </div>
           </div>
         </BottomSheet>
       )}

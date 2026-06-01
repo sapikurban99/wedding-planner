@@ -4,6 +4,7 @@
 -- ============================================================
 
 -- ===== DROP EXISTING TABLES =====
+DROP TABLE IF EXISTS wedding_plan_invitations CASCADE;
 DROP TABLE IF EXISTS wedding_plan_savings_deposits CASCADE;
 DROP TABLE IF EXISTS wedding_plan_seserahan_items CASCADE;
 DROP TABLE IF EXISTS wedding_plan_engagement_items CASCADE;
@@ -22,6 +23,8 @@ CREATE TABLE wedding_plan_settings (
   target_amount bigint not null default 0,
   wedding_date date,
   couple_name text default 'Qisti & Aldi',
+  groom_quota int not null default 150,
+  bride_quota int not null default 150,
   created_at timestamptz default now(),
   updated_at timestamptz default now(),
   constraint single_row check (id = 1)
@@ -256,6 +259,23 @@ CREATE TABLE wedding_plan_savings_deposits (
 ALTER TABLE wedding_plan_savings_deposits ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
+-- 10. INVITATIONS (Pembagian Undangan Pria/Wanita)
+-- ============================================================
+CREATE TABLE wedding_plan_invitations (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  pax int not null default 1,
+  party text not null default 'pria' check (party in ('pria', 'wanita')),
+  category text,
+  notes text,
+  invited boolean not null default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+ALTER TABLE wedding_plan_invitations ENABLE ROW LEVEL SECURITY;
+
+-- ============================================================
 -- RLS POLICIES
 -- ============================================================
 CREATE POLICY "Allow all on wedding_plan_settings"
@@ -276,6 +296,8 @@ CREATE POLICY "Allow all on wedding_plan_seserahan_items"
   ON wedding_plan_seserahan_items FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on wedding_plan_savings_deposits"
   ON wedding_plan_savings_deposits FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all on wedding_plan_invitations"
+  ON wedding_plan_invitations FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================
 -- INDEXES
@@ -290,3 +312,4 @@ CREATE INDEX idx_wp_checklist_items_completed ON wedding_plan_checklist_items(co
 CREATE INDEX idx_wp_engagement_party ON wedding_plan_engagement_items(party);
 CREATE INDEX idx_wp_seserahan_party ON wedding_plan_seserahan_items(party);
 CREATE INDEX idx_wp_savings_deposits_date ON wedding_plan_savings_deposits(date);
+CREATE INDEX idx_wp_invitations_party ON wedding_plan_invitations(party);

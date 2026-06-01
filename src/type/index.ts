@@ -95,11 +95,23 @@ export interface SavingsDeposit {
   date: string;
 }
 
+export interface Invitation {
+  id: string;
+  name: string;
+  pax: number;
+  party: "pria" | "wanita";
+  category?: string;
+  notes?: string;
+  invited: boolean;
+}
+
 export interface AppSettings {
   id: number;
   target_amount: number;
   wedding_date: string | null;
   couple_name: string;
+  groom_quota: number;
+  bride_quota: number;
 }
 
 export type PartyFilter = "pria" | "wanita" | "joint";
@@ -115,4 +127,5 @@ export interface AppData {
   engagementItems: EngagementItem[];
   seserahanItems: SeserahanItem[];
   savingsDeposits: SavingsDeposit[];
+  invitations: Invitation[];
 }
