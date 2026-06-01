@@ -1,61 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FEFF00; /* Vibrant Yellow */
+  --foreground: #000000;
+  --brutalist-border: 3px solid #000000;
+  --brutalist-shadow: 4px 4px 0px 0px #000000;
+  --brutalist-shadow-sm: 2px 2px 0px 0px #000000;
+  --brutalist-shadow-lg: 8px 8px 0px 0px #000000;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-
-  /* ===== SAFE COLOR OVERRIDES (hex/rgb) =====
-     Tailwind v4 uses oklch() by default which is NOT supported
-     on iOS 15 Safari. These hex overrides ensure colors render
-     correctly on ALL devices. */
-
-  /* Pink */
-  --color-pink-50: #fdf2f8;
-  --color-pink-100: #fce7f3;
-  --color-pink-200: #fbcfe8;
-  --color-pink-300: #f9a8d4;
-  --color-pink-400: #f472b6;
-  --color-pink-500: #ec4899;
-  --color-pink-600: #db2777;
-  --color-pink-700: #be185d;
-  --color-pink-800: #9d174d;
-  --color-pink-900: #831843;
-
-  /* Rose */
-  --color-rose-400: #fb7185;
-  --color-rose-500: #f43f5e;
-  --color-rose-600: #e11d48;
-
-  /* Emerald */
-  --color-emerald-100: #d1fae5;
-  --color-emerald-500: #10b981;
-  --color-emerald-600: #059669;
-
-  /* Gray */
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
-
-  /* Red */
-  --color-red-500: #ef4444;
-
-  /* Black & White */
-  --color-black: #000000;
-  --color-white: #ffffff;
+  --font-sans: var(--font-inter);
+  
+  /* Vibrant Brutalist Palette */
+  --color-brut-yellow: #FEFF00;
+  --color-brut-cyan: #00F0FF;
+  --color-brut-pink: #FF00FF;
+  --color-brut-green: #00FF00;
+  --color-brut-white: #FFFFFF;
+  --color-brut-black: #000000;
+  
+  --shadow-brutalist: 4px 4px 0px 0px #000000;
+  --shadow-brutalist-sm: 2px 2px 0px 0px #000000;
+  --shadow-brutalist-lg: 8px 8px 0px 0px #000000;
 }
 
 body {
@@ -68,110 +37,74 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===== RGBA HELPER CLASSES FOR OLD iOS =====
-   Hex-alpha (#ffffff1a) is NOT supported on iOS < 12.2 
-   These classes use rgba() which works everywhere */
-
-.bg-white-10 {
-  background-color: rgba(255, 255, 255, 0.1);
+/* Brutalist Utility Classes */
+.brutalist-card {
+  background: #FFFFFF;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.1s ease;
 }
 
-.bg-white-20 {
-  background-color: rgba(255, 255, 255, 0.2);
+.brutalist-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #000000;
 }
 
-.bg-white-30 {
-  background-color: rgba(255, 255, 255, 0.3);
+.brutalist-button {
+  background: #00F0FF; /* Cyan */
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.1s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.bg-white-95 {
-  background-color: rgba(255, 255, 255, 0.95);
+.brutalist-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
 }
 
-.bg-white-92 {
-  background-color: rgba(255, 255, 255, 0.92);
+.brutalist-button-pink {
+  background: #FF00FF;
 }
 
-.bg-black-50 {
-  background-color: rgba(0, 0, 0, 0.5);
+.brutalist-button-green {
+  background: #00FF00;
 }
 
-.bg-black-20 {
-  background-color: rgba(0, 0, 0, 0.2);
+.brutalist-button-white {
+  background: #FFFFFF;
 }
 
-.bg-gray-50-50 {
-  background-color: rgba(249, 250, 251, 0.5);
+.brutalist-input {
+  background: #FFFFFF;
+  border: 3px solid #000000;
+  padding: 0.75rem;
+  font-weight: 600;
+  outline: none;
 }
 
-/* ===== BACKDROP-BLUR FALLBACK =====
-   backdrop-filter not supported on iOS < 13.
-   We raise opacity so it looks good without blur too. */
-
-.safe-blur {
-  background-color: rgba(255, 255, 255, 0.97);
+.brutalist-input:focus {
+  background: #FEFF00;
+  box-shadow: 4px 4px 0px 0px #000000;
 }
 
-@supports ((-webkit-backdrop-filter: blur(8px)) or (backdrop-filter: blur(8px))) {
-  .safe-blur {
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    background-color: rgba(255, 255, 255, 0.92);
-  }
+/* Modal / Bottom Sheet Brutalist Style */
+.brutalist-modal {
+  background: #FFFFFF;
+  border: 4px solid #000000;
+  box-shadow: 8px 8px 0px 0px #000000;
 }
 
-.safe-blur-sm {
-  background-color: rgba(255, 255, 255, 0.95);
-}
-
-@supports ((-webkit-backdrop-filter: blur(4px)) or (backdrop-filter: blur(4px))) {
-  .safe-blur-sm {
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    background-color: rgba(255, 255, 255, 0.85);
-  }
-}
-
-.safe-blur-overlay {
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
-@supports ((-webkit-backdrop-filter: blur(4px)) or (backdrop-filter: blur(4px))) {
-  .safe-blur-overlay {
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-}
-
-/* Progress Bar Animation */
-@-webkit-keyframes progress-indeterminate {
-  0% {
-    -webkit-transform: translateX(-100%);
-    transform: translateX(-100%);
-  }
-
-  100% {
-    -webkit-transform: translateX(400%);
-    transform: translateX(400%);
-  }
-}
-
-@keyframes progress-indeterminate {
-  0% {
-    -webkit-transform: translateX(-100%);
-    transform: translateX(-100%);
-  }
-
-  100% {
-    -webkit-transform: translateX(400%);
-    transform: translateX(400%);
-  }
-}
-
-.progress-bar-indeterminate {
-  -webkit-animation: progress-indeterminate 1.4s ease-in-out infinite;
-  animation: progress-indeterminate 1.4s ease-in-out infinite;
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 /* Safe area padding for iPhone notch / home bar */
@@ -185,65 +118,6 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Bottom sheet modal animation */
-@-webkit-keyframes slide-up {
-  from {
-    -webkit-transform: translateY(100%);
-    transform: translateY(100%);
-    opacity: 0;
-  }
-
-  to {
-    -webkit-transform: translateY(0);
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-up {
-  from {
-    -webkit-transform: translateY(100%);
-    transform: translateY(100%);
-    opacity: 0;
-  }
-
-  to {
-    -webkit-transform: translateY(0);
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@-webkit-keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.modal-overlay {
-  -webkit-animation: fade-in 0.2s ease-out;
-  animation: fade-in 0.2s ease-out;
-}
-
-.modal-bottom-sheet {
-  -webkit-animation: slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-  animation: slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
 /* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -254,37 +128,24 @@ body {
   scrollbar-width: none;
 }
 
-/* Password screen shimmer */
-@-webkit-keyframes shimmer {
-  0% {
-    background-position: -200% 0;
+/* Animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
   }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
+  to {
+    transform: translateY(0);
   }
 }
 
-.shimmer-bg {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
-  background-size: 200% 100%;
-  -webkit-animation: shimmer 3s ease-in-out infinite;
-  animation: shimmer 3s ease-in-out infinite;
+.modal-bottom-sheet {
+  animation: slide-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ===== iOS 12 FLEX FIX =====
-   Older iOS has issues with flex items not respecting min-width.
-   Adding explicit min-width: 0 to flex children fixes overflow. */
-.flex-1 {
-  min-width: 0;
+.h-safe {
+  height: env(safe-area-inset-bottom, 0px);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

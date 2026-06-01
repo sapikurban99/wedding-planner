@@ -11,8 +11,7 @@ import {
 import confetti from 'canvas-confetti';
 import * as sb from '../lib/supabaseService';
 import type {
-  AppData, BudgetItem, TimelineEvent,
-  ChecklistItem, EngagementItem, SeserahanItem
+  AppData, EngagementItem, SeserahanItem
 } from '../type';
 
 const formatRupiah = (n: number) =>
@@ -47,20 +46,20 @@ function getMotivation(pct: number) {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  planned: '#f59e0b',
-  ordered: '#3b82f6',
-  done: '#10b981',
-  cancelled: '#ef4444',
+  planned: '#FEFF00', // Yellow
+  ordered: '#00F0FF', // Cyan
+  done: '#00FF00',    // Green
+  cancelled: '#FF0000', // Red
 };
 
 const TAB_CONFIG: { key: MainTab; label: string; icon: React.ReactNode }[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: <FaHeart /> },
+  { key: 'dashboard', label: 'Dash', icon: <FaHeart /> },
   { key: 'budget', label: 'Budget', icon: <FaWallet /> },
-  { key: 'checklist', label: 'Checklist', icon: <FaClipboardList /> },
-  { key: 'engagement', label: 'Engagement', icon: <FaRing /> },
-  { key: 'seserahan', label: 'Seserahan', icon: <FaGift /> },
-  { key: 'savings', label: 'Tabungan', icon: <FaPiggyBank /> },
-  { key: 'timeline', label: 'Timeline', icon: <FaCalendarAlt /> },
+  { key: 'checklist', label: 'Tasks', icon: <FaClipboardList /> },
+  { key: 'engagement', label: 'Ring', icon: <FaRing /> },
+  { key: 'seserahan', label: 'Gifts', icon: <FaGift /> },
+  { key: 'savings', label: 'Bank', icon: <FaPiggyBank /> },
+  { key: 'timeline', label: 'Plan', icon: <FaCalendarAlt /> },
 ];
 
 // ===================== PASSWORD GATE =====================
@@ -86,80 +85,71 @@ function PasswordGate({ onAuth }: { onAuth: () => void }) {
         localStorage.setItem('wedding_auth', 'true');
         onAuth();
       } else {
-        setErr('Password salah');
+        setErr('WRONG PASSWORD!');
         setPw('');
       }
     } catch {
-      setErr('Gagal koneksi');
+      setErr('CONNECTION ERROR');
     } finally {
       setChecking(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
-      style={{ background: '#111827' }}>
-      <div className="absolute top-10 left-10 w-24 h-24 bg-white-10 rounded-full" style={{ filter: 'blur(32px)' }} />
-      <div className="absolute bottom-20 right-10 w-32 h-32 bg-white-10 rounded-full" style={{ filter: 'blur(32px)' }} />
-      <div className="w-full max-w-sm relative" style={{ zIndex: 10 }}>
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white-20 rounded-full mb-4">
-            <FaHeart className="text-3xl" style={{ color: '#fff' }} />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-brut-black">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-brut-pink border-4 border-brut-white shadow-brutalist-lg mb-6">
+            <FaHeart className="text-5xl text-brut-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Wedding Dream</h1>
-          <p className="text-sm mt-1" style={{ color: '#e5e7eb' }}>Qisti & Aldi</p>
+          <h1 className="text-4xl font-black text-brut-white uppercase tracking-tighter">Wedding Dream</h1>
+          <p className="font-bold text-brut-yellow bg-brut-black border-2 border-brut-yellow inline-block px-2 mt-2">QISTI & ALDI</p>
         </div>
-        <form onSubmit={handleSubmit} className="safe-blur rounded-3xl p-6 shadow-2xl">
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3" style={{ backgroundColor: '#e5e7eb' }}>
-              <FaLock className="text-lg" style={{ color: '#111827' }} />
+        <form onSubmit={handleSubmit} className="brutalist-card p-8 bg-brut-white">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 border-3 border-brut-black bg-brut-yellow shadow-brutalist-sm mb-4">
+              <FaLock className="text-2xl" />
             </div>
-            <h2 className="text-lg font-bold" style={{ color: '#1f2937' }}>Masukkan Password</h2>
-            <p className="text-xs mt-1" style={{ color: '#9ca3af' }}>Untuk mengakses Wedding Planner</p>
+            <h2 className="text-2xl font-black uppercase tracking-tight">Access Denied</h2>
+            <p className="text-sm font-bold uppercase mt-1">Enter code to proceed</p>
           </div>
-          <div className="relative mb-4">
+          <div className="relative mb-6">
             <input
               type={showPw ? 'text' : 'password'}
-              placeholder="Password"
+              placeholder="SECRET CODE"
               value={pw}
               onChange={(e) => setPw(e.target.value)}
-              className="w-full p-4 pr-12 rounded-2xl outline-none font-medium text-base"
-              style={{ border: '2px solid #e5e7eb', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
+              className="w-full brutalist-input text-center text-xl uppercase tracking-[0.5em]"
               autoFocus
               autoComplete="off"
             />
             <button type="button" onClick={() => setShowPw(!showPw)}
-              className="absolute right-4 top-1/2 p-1" style={{ transform: 'translateY(-50%)', color: '#9ca3af' }}>
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 border-2 border-brut-black bg-brut-white">
               {showPw ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
-          {err && <p className="text-xs text-center mb-3 font-medium" style={{ color: '#ef4444' }}>{err}</p>}
+          {err && <p className="text-xs text-center mb-4 font-black text-red-600 bg-red-100 border-2 border-red-600 p-2 uppercase">{err}</p>}
           <button type="submit" disabled={checking}
-            className="w-full py-4 font-bold rounded-2xl shadow-lg text-base"
-            style={{
-              background: '#111827',
-              color: '#fff',
-              opacity: checking ? 0.6 : 1,
-            }}>
-            {checking ? <FaSyncAlt className="animate-spin inline mr-2" /> : null}
-            {checking ? 'Memverifikasi...' : 'Masuk'}
+            className="w-full brutalist-button brutalist-button-cyan !py-5 text-xl">
+            {checking ? <FaSyncAlt className="animate-spin mr-2" /> : null}
+            {checking ? 'VERIFYING...' : 'UNLOCK ACCESS'}
           </button>
         </form>
-        <p className="text-center text-xs mt-6" style={{ color: '#d1d5db' }}>With love, forever</p>
       </div>
     </div>
   );
 }
 
-// ===================== BOTTOM SHEET (top-level, avoid re-mount) =====================
+// ===================== BOTTOM SHEET =====================
 function BottomSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 safe-blur-overlay flex items-end justify-center modal-overlay" style={{ zIndex: 50 }} onClick={onClose}>
-      <div className="w-full rounded-t-3xl p-6 shadow-2xl pb-safe modal-bottom-sheet"
-        style={{ backgroundColor: '#fff', maxWidth: '24rem' }}
+    <div className="fixed inset-0 flex items-center justify-center px-4 modal-overlay" style={{ zIndex: 100 }} onClick={onClose}>
+      <div className="w-full max-w-md brutalist-modal p-8 relative modal-bottom-sheet max-h-[90vh] overflow-y-auto no-scrollbar"
         onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-center mb-4"><div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#d1d5db' }} /></div>
-        {children}
+        <button onClick={onClose} className="absolute top-2 right-2 w-10 h-10 border-3 border-brut-black bg-brut-pink shadow-brutalist-sm font-black text-xl z-10">×</button>
+        <div className="pt-4">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -187,12 +177,11 @@ export default function Home() {
 
   const [loading, setLoading] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
-  const [loadText, setLoadText] = useState('Memuat...');
+  const [loadText, setLoadText] = useState('LOADING...');
   const progRef = useRef<NodeJS.Timeout | null>(null);
 
   // Tab state
   const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
-  // Filters
   const [partyFilter, setPartyFilter] = useState<PartyFilter>('all');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [timelineView, setTimelineView] = useState<TimelineView>('calendar');
@@ -220,13 +209,11 @@ export default function Home() {
   const [formBudget, setFormBudget] = useState('');
   const [formActual, setFormActual] = useState('');
   const [formTitle, setFormTitle] = useState('');
-  const [formDeadline, setFormDeadline] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
 
   // Countdown
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0 });
 
-  // ====== COUNTDOWN TIMER ======
   useEffect(() => {
     if (!data.settings.wedding_date) return;
     const tick = () => {
@@ -245,7 +232,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [data.settings.wedding_date]);
 
-  // ====== DATA LOADING ======
   const startProgress = useCallback((text: string) => {
     setLoadText(text);
     setLoadProgress(0);
@@ -266,7 +252,7 @@ export default function Home() {
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    startProgress('Memuat Data...');
+    startProgress('FETCHING DATA...');
     try {
       const result = await sb.fetchAllData();
       setData(result);
@@ -295,37 +281,29 @@ export default function Home() {
     if (authenticated) fetchAll();
   }, [authenticated, fetchAll]);
 
-  // ====== DERIVED STATE ======
+  // Derived state
   const totalIncome = data.transactions.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0);
   const totalExpense = data.transactions.filter(t => t.type === 'expense').reduce((a, t) => a + t.amount, 0);
   const cashBalance = totalIncome - totalExpense;
   const target = data.settings.target_amount;
-  const fundingGap = Math.max(0, target - totalIncome);
   const savingsProgress = target > 0 ? (totalIncome / target) * 100 : 0;
 
-  // Checklist progress
   const totalChecklist = data.checklistItems.length;
   const doneChecklist = data.checklistItems.filter(i => i.completed).length;
   const checklistPct = totalChecklist > 0 ? (doneChecklist / totalChecklist) * 100 : 0;
   const mot = getMotivation(checklistPct);
 
-  // Budget totals
   const totalPlan = data.budgets.reduce((a, b) => a + b.plan, 0);
   const totalPaid = data.budgets.reduce((a, b) => a + b.paid, 0);
 
-  // Savings = total income from transactions
   const savingsNeeded = Math.max(0, target - totalIncome);
-
-  // Filtered lists
   const filteredEngagement = data.engagementItems.filter(i => partyFilter === 'all' || i.party === partyFilter);
   const filteredSeserahan = data.seserahanItems.filter(i => partyFilter === 'all' || i.party === partyFilter);
 
-  const engagementTotalBudget = filteredEngagement.reduce((a, i) => a + i.budget_amount, 0);
-  const engagementTotalActual = filteredEngagement.reduce((a, i) => a + i.actual_amount, 0);
-  const seserahanTotalBudget = filteredSeserahan.reduce((a, i) => a + i.budget_amount, 0);
-  const seserahanTotalActual = filteredSeserahan.reduce((a, i) => a + i.actual_amount, 0);
+  const engagementTotalActual = data.engagementItems.reduce((a, i) => a + i.actual_amount, 0);
+  const seserahanTotalActual = data.seserahanItems.reduce((a, i) => a + i.actual_amount, 0);
 
-  // ====== HANDLERS ======
+  // Handlers
   const handleAddDeposit = async (amount: number, note?: string) => {
     await sb.addTransaction({
       date: new Date().toISOString(),
@@ -334,7 +312,7 @@ export default function Home() {
       type: 'income',
       category: 'Income',
     });
-    confetti({ particleCount: 50, spread: 50, origin: { y: 0.8 } });
+    confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
     await silentRefresh();
     setShowDepositModal(false);
   };
@@ -350,11 +328,10 @@ export default function Home() {
 
   const handleAddExpense = async () => {
     if (!formDesc || !formAmount) return;
-    const amt = parseInt(formAmount);
     await sb.addTransaction({
       date: new Date().toISOString(),
       desc: formDesc,
-      amount: amt,
+      amount: parseInt(formAmount),
       type: 'expense',
       category: formCategory,
     });
@@ -371,7 +348,7 @@ export default function Home() {
       title: formTitle,
       completed: false,
       priority: 'medium',
-      assigned_to: formParty as 'pria' | 'wanita' | 'joint',
+      assigned_to: formParty,
       sort_order: 0,
     });
     await silentRefresh();
@@ -381,12 +358,12 @@ export default function Home() {
 
   const handleToggleChecklist = async (id: string, completed: boolean) => {
     await sb.toggleChecklistItem(id, !completed);
-    if (!completed) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    if (!completed) confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
     await silentRefresh();
   };
 
   const handleDeleteChecklist = async (id: string) => {
-    if (!confirm('Hapus item ini?')) return;
+    if (!confirm('DELETE THIS ITEM?')) return;
     await sb.deleteChecklistItem(id);
     await silentRefresh();
   };
@@ -399,7 +376,7 @@ export default function Home() {
       budget_amount: parseInt(formBudget) || 0,
       actual_amount: parseInt(formActual) || 0,
       party: formParty,
-      status: formStatus || 'planned',
+      status: formStatus,
     });
     await silentRefresh();
     setShowAddEngagement(false);
@@ -416,7 +393,7 @@ export default function Home() {
       budget_amount: parseInt(formBudget) || 0,
       actual_amount: parseInt(formActual) || 0,
       party: formParty,
-      status: formStatus || 'planned',
+      status: formStatus,
     });
     await silentRefresh();
     setShowAddSeserahan(false);
@@ -426,13 +403,13 @@ export default function Home() {
   };
 
   const handleDeleteEngagement = async (id: string) => {
-    if (!confirm('Hapus item ini?')) return;
+    if (!confirm('DELETE THIS ITEM?')) return;
     await sb.deleteEngagementItem(id);
     await silentRefresh();
   };
 
   const handleDeleteSeserahan = async (id: string) => {
-    if (!confirm('Hapus item ini?')) return;
+    if (!confirm('DELETE THIS ITEM?')) return;
     await sb.deleteSeserahanItem(id);
     await silentRefresh();
   };
@@ -492,958 +469,885 @@ export default function Home() {
     await silentRefresh();
   };
 
-
-  const renderSavingsProgressBar = () => {
-    const pct = Math.min(savingsProgress, 100);
-    const markers = [25, 50, 75, 100];
-    return (
-      <div className="relative w-full h-5 mt-2">
-        <div className="w-full h-full rounded-full overflow-hidden relative" style={{ backgroundColor: '#f3f4f6' }}>
-          <div className="h-full rounded-full relative transition-all duration-700"
-            style={{ width: `${pct}%`, background: '#111827' }} />
-        </div>
-        {markers.map(m => (
-          <div key={m} className="absolute top-0 flex flex-col items-center" style={{ left: `${m}%`, transform: 'translateX(-50%)' }}>
-            <div className="w-0.5 h-5" style={{ backgroundColor: pct >= m ? '#fff' : '#d1d5db', opacity: 0.5 }} />
-            <span className="text-[8px] font-bold mt-0.5" style={{ color: '#9ca3af' }}>{m}%</span>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   if (authenticated === null) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f9fafb' }}>
-      <FaSyncAlt className="animate-spin text-2xl" style={{ color: '#374151' }} />
+    <div className="min-h-screen flex items-center justify-center bg-brut-yellow">
+      <FaSyncAlt className="animate-spin text-4xl" />
     </div>
   );
   if (!authenticated) return <PasswordGate onAuth={() => setAuthenticated(true)} />;
 
   return (
-    <div className="min-h-screen flex justify-center font-sans" style={{ backgroundColor: '#f9fafb', color: '#1f2937' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-brut-yellow font-sans selection:bg-brut-cyan selection:text-brut-black">
 
       {/* ===== LOADING OVERLAY ===== */}
       {(loading || loadProgress > 0) && (
-        <div className="fixed inset-0 flex flex-col items-center justify-center safe-blur" style={{ zIndex: 100, transition: 'opacity 0.3s' }}>
-          <FaHeart className="animate-pulse mb-6" style={{ color: '#111827', fontSize: '3rem' }} />
-          <p className="font-bold mb-4 text-lg" style={{ color: '#1f2937' }}>
-            {loadProgress < 100 ? `${loadText} ${loadProgress}%` : 'Selesai'}
-          </p>
-          <div className="w-64 h-3 rounded-full overflow-hidden" style={{ backgroundColor: '#e5e7eb' }}>
-            <div className="h-full" style={{
-              width: `${loadProgress}%`,
-              background: '#111827',
-              transition: 'width 0.2s ease-out',
-              borderRadius: '9999px',
-            }} />
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-brut-white" style={{ zIndex: 200 }}>
+          <div className="border-4 border-brut-black p-8 bg-brut-yellow shadow-brutalist animate-in zoom-in duration-300">
+            <FaHeart className="animate-pulse mb-6 text-6xl text-brut-pink mx-auto" />
+            <p className="font-black text-2xl uppercase tracking-tighter mb-4 text-center">
+              {loadProgress < 100 ? `${loadText} ${loadProgress}%` : 'SUCCESS!'}
+            </p>
+            <div className="w-64 h-8 bg-brut-black border-4 border-brut-black overflow-hidden shadow-brutalist-sm">
+              <div className="h-full bg-brut-green transition-all duration-300" style={{ width: `${loadProgress}%` }} />
+            </div>
           </div>
         </div>
       )}
 
-      <div className="w-full max-w-md min-h-screen shadow-2xl relative" style={{ backgroundColor: '#fff', paddingBottom: '10rem' }}>
+      {/* ===== DESKTOP SIDEBAR ===== */}
+      <aside className="hidden lg:flex flex-col w-72 bg-brut-white border-r-4 border-brut-black h-screen sticky top-0 p-8 z-40 overflow-y-auto no-scrollbar">
+        <div className="mb-12">
+          <h1 className="text-4xl font-black uppercase tracking-tighter flex items-center gap-2">
+            <FaHeart className="text-brut-pink" />
+            <span>Wedding</span>
+          </h1>
+          <p className="font-black text-xs bg-brut-yellow px-2 border-2 border-brut-black inline-block mt-3 uppercase tracking-widest">
+            {data.settings.couple_name || 'Qisti & Aldi'}
+          </p>
+        </div>
 
-        {/* ===== HEADER ===== */}
-        <div className="px-5 pt-6 pb-14 rounded-b-3xl shadow-lg relative overflow-hidden"
-          style={{ background: '#111827', color: '#fff' }}>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white-10 rounded-full" style={{ filter: 'blur(20px)', marginRight: '-16px', marginTop: '-16px' }} />
-          <div className="flex justify-between items-center mb-4 relative" style={{ zIndex: 10 }}>
+        {/* Desktop Balance Widget (Moved here for better UX) */}
+        <div className="mb-10 brutalist-card p-4 bg-brut-white">
+          <p className="font-black uppercase text-[10px] tracking-widest text-gray-500 mb-2">CASH ON HAND</p>
+          <div className="flex items-center gap-3">
+             <div className="flex items-center justify-center w-10 h-10 bg-brut-yellow border-2 border-brut-black shadow-brutalist-sm">
+                <FaWallet />
+             </div>
+             <p className="font-black text-xl tracking-tighter">{formatRupiah(cashBalance)}</p>
+          </div>
+        </div>
+
+        <nav className="flex flex-col gap-3">
+          {TAB_CONFIG.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-4 px-5 py-4 border-3 border-brut-black font-black text-sm uppercase transition-all ${
+                activeTab === tab.key 
+                  ? 'bg-brut-cyan translate-x-1 translate-y-1 shadow-none' 
+                  : 'bg-brut-white shadow-brutalist-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+              }`}
+            >
+              <span className="text-xl">{tab.icon}</span> {tab.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-auto space-y-3 pt-6 border-t-4 border-brut-black">
+           <button onClick={() => { setShowDepositModal(true); setFormAmount(''); setFormDesc(''); }}
+              className="w-full brutalist-button brutalist-button-green !py-3 text-sm">
+              <FaPlusCircle /> DEPOSIT
+            </button>
+            <button onClick={() => { setShowExpenseModal(true); setFormDesc(''); setFormAmount(''); }}
+              className="w-full brutalist-button brutalist-button-cyan !py-3 text-sm">
+              <FaReceipt /> PAY BILL
+            </button>
+          <button
+            onClick={refresh}
+            className="w-full brutalist-button brutalist-button-pink !py-2 text-[10px]"
+          >
+            <FaSyncAlt className={loading ? 'animate-spin' : ''} /> REFRESH DATA
+          </button>
+        </div>
+      </aside>
+
+      {/* ===== MAIN CONTENT ===== */}
+      <main className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
+        {/* MOBILE/TABLET HEADER */}
+        <header className="lg:hidden px-5 py-6 bg-brut-white border-b-4 border-brut-black relative z-30">
+          <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-lg font-bold flex items-center gap-2"><FaHeart style={{ color: '#d1d5db' }} /> {data.settings.couple_name || 'Wedding Dream'}</h1>
-              <p className="text-xs" style={{ color: '#e5e7eb', opacity: 0.9 }}>
-                {data.settings.wedding_date ? new Date(data.settings.wedding_date).toLocaleDateString('id-ID', { dateStyle: 'long' }) : 'Atur tanggal pernikahan'}
+              <h1 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-2">
+                <FaHeart className="text-brut-pink" /> WEDDING
+              </h1>
+              <p className="text-[10px] font-black uppercase bg-brut-yellow px-2 border-2 border-brut-black inline-block mt-1">
+                {data.settings.wedding_date ? new Date(data.settings.wedding_date).toLocaleDateString('id-ID', { dateStyle: 'long' }) : 'SET DATE'}
               </p>
             </div>
-            <button onClick={refresh} className="text-xs bg-white-20 p-2.5 rounded-full flex items-center justify-center"
-              style={{ minWidth: '44px', minHeight: '44px', transition: 'all 0.2s' }}>
-              <FaSyncAlt className={loading ? 'animate-spin' : ''} />
-            </button>
-          </div>
-
-          {/* Countdown */}
-          <div className="flex justify-center gap-5 my-3 relative" style={{ zIndex: 10 }}>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{countdown.days}</div>
-              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#e5e7eb' }}>Hari</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{countdown.hours}</div>
-              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#e5e7eb' }}>Jam</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{countdown.minutes}</div>
-              <div className="text-[10px] uppercase tracking-wider" style={{ color: '#e5e7eb' }}>Menit</div>
+            <div className="flex gap-2">
+               <button onClick={refresh} className="w-12 h-12 border-3 border-brut-black bg-brut-white shadow-brutalist-sm flex items-center justify-center active:translate-y-1">
+                 <FaSyncAlt className={loading ? 'animate-spin' : ''} />
+               </button>
             </div>
           </div>
 
-          {/* Overall Progress */}
-          <div className="text-center relative" style={{ zIndex: 10, marginTop: '0.5rem' }}>
-            <p className="text-xs" style={{ color: '#e5e7eb' }}>
-              {doneChecklist}/{totalChecklist} tugas selesai {totalChecklist > 0 ? `(${Math.round(checklistPct)}%)` : ''}
-            </p>
-            <div className="w-full bg-black-20 rounded-full h-2.5 mt-2 overflow-hidden">
-              <div className="h-2.5 rounded-full transition-all duration-700" style={{ backgroundColor: '#fff', width: `${Math.min(checklistPct, 100)}%` }} />
-            </div>
-          </div>
-        </div>
-
-        {/* ===== TAB NAVIGATION ===== */}
-        <div className="px-2 mt-[-0.5rem] relative z-20">
-          <div className="flex gap-1 overflow-x-auto no-scrollbar pb-1" style={{ scrollSnapType: 'x mandatory' }}>
-            {TAB_CONFIG.map(tab => (
-              <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl whitespace-nowrap font-bold text-xs transition-all"
-                style={{
-                  backgroundColor: activeTab === tab.key ? '#111827' : '#fff',
-                  color: activeTab === tab.key ? '#fff' : '#6b7280',
-                  border: activeTab === tab.key ? 'none' : '1px solid #f3f4f6',
-                  boxShadow: activeTab === tab.key ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
-                  scrollSnapAlign: 'start',
-                }}>
-                {tab.icon} {tab.label}
-              </button>
+          <div className="flex justify-between gap-2">
+            {[
+              { val: countdown.days, label: 'DAYS' },
+              { val: countdown.hours, label: 'HRS' },
+              { val: countdown.minutes, label: 'MIN' }
+            ].map(item => (
+              <div key={item.label} className="flex-1 bg-brut-cyan border-3 border-brut-black p-3 shadow-brutalist-sm text-center">
+                <div className="text-2xl font-black leading-none">{item.val}</div>
+                <div className="text-[10px] font-black uppercase tracking-wider">{item.label}</div>
+              </div>
             ))}
           </div>
-        </div>
+        </header>
 
-        {/* ===== CONTENT AREA ===== */}
-        <div className="px-4 mt-4 pb-4">
+        {/* CONTENT AREA */}
+        <div className="flex-1 p-4 md:p-8 lg:p-12 pb-56 lg:pb-12 max-w-7xl mx-auto w-full">
+          {/* TAB CONTENT CONTAINER */}
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            
+            {/* DASHBOARD TAB */}
+            {activeTab === 'dashboard' && (
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                   {/* Main Progress */}
+                   <div className="lg:col-span-2 brutalist-card p-6 bg-brut-white">
+                      <div className="flex justify-between items-end mb-4 gap-2">
+                        <p className="font-black text-lg sm:text-xl uppercase tracking-tighter">Tasks Progress</p>
+                        <p className="font-black text-xl sm:text-2xl bg-brut-green px-3 border-3 border-brut-black">
+                          {Math.round(checklistPct)}%
+                        </p>
+                      </div>
+                      <div className="w-full bg-brut-black border-4 border-brut-black h-12 overflow-hidden shadow-brutalist-sm">
+                        <div 
+                          className="h-full bg-brut-green transition-all duration-1000 border-r-4 border-brut-black" 
+                          style={{ width: `${Math.min(checklistPct, 100)}%` }} 
+                        />
+                      </div>
+                      <div className="flex justify-between mt-4">
+                         <p className="text-sm font-black uppercase tracking-tight">
+                            {doneChecklist} of {totalChecklist} COMPLETED
+                         </p>
+                         <p className="text-sm font-black uppercase text-brut-pink bg-brut-black px-2">
+                            {mot.text} {mot.emoji}
+                         </p>
+                      </div>
+                   </div>
 
-          {/* ===== DASHBOARD TAB ===== */}
-          {activeTab === 'dashboard' && (
-            <div className="space-y-4">
-              {/* Budget Summary */}
-              <div className="rounded-2xl p-5 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                <div className="flex justify-between items-center mb-3">
-                  <p className="font-bold text-sm" style={{ color: '#374151' }}>Ringkasan Budget</p>
-                  {target === 0 && (
-                    <button onClick={() => setShowTargetModal(true)}
-                      className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
-                      Yuk, atur target
-                    </button>
-                  )}
+                   {/* Budget Summary Card */}
+                   <div className="brutalist-card p-6 bg-brut-pink text-brut-white">
+                      <p className="font-black text-xl uppercase tracking-tighter mb-4 text-brut-black bg-brut-white inline-block px-2">Budget Info</p>
+                      <div className="space-y-4">
+                         <div className="flex justify-between items-center border-b-2 border-brut-white pb-2">
+                            <span className="font-black text-sm uppercase">Collected</span>
+                            <span className="font-black text-xl">{formatRupiah(totalIncome)}</span>
+                         </div>
+                         <div className="flex justify-between items-center border-b-2 border-brut-white pb-2">
+                            <span className="font-black text-sm uppercase">Paid</span>
+                            <span className="font-black text-xl">{formatRupiah(totalPaid)}</span>
+                         </div>
+                         <div className="flex justify-between items-center bg-brut-black p-2">
+                            <span className="font-black text-sm uppercase text-brut-cyan">Balance</span>
+                            <span className="font-black text-xl text-brut-cyan">{formatRupiah(cashBalance)}</span>
+                         </div>
+                      </div>
+                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 rounded-xl text-center" style={{ backgroundColor: '#f9fafb' }}>
-                    <p className="text-[10px] font-bold uppercase" style={{ color: '#9ca3af' }}>Total Terkumpul</p>
-                    <p className="font-bold text-lg" style={{ color: '#059669' }}>{formatRupiah(totalIncome)}</p>
-                  </div>
-                  <div className="p-3 rounded-xl text-center" style={{ backgroundColor: '#f9fafb' }}>
-                    <p className="text-[10px] font-bold uppercase" style={{ color: '#9ca3af' }}>Target</p>
-                    <p className="font-bold text-lg" style={{ color: '#111827' }}>{target > 0 ? formatRupiah(target) : '—'}</p>
-                  </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   {/* Budget Breakdown */}
+                   <div className="brutalist-card p-6 bg-brut-white">
+                      <div className="flex justify-between items-center mb-6">
+                        <p className="font-black text-lg uppercase tracking-tight">Expense Breakdown</p>
+                        <button onClick={() => setActiveTab('budget')} className="text-xs font-black uppercase underline hover:text-brut-cyan">VIEW ALL</button>
+                      </div>
+                      <div className="space-y-6">
+                        {data.budgets.slice(0, 4).map(b => {
+                          const pct = b.plan > 0 ? (b.paid / b.plan) * 100 : 0;
+                          return (
+                            <div key={b.id}>
+                              <div className="flex justify-between text-xs font-black uppercase mb-1">
+                                <span className="truncate max-w-[70%]">{b.item}</span>
+                                <span className="bg-brut-yellow px-1 border border-brut-black text-brut-black font-bold">{Math.round(pct)}%</span>
+                              </div>
+                              <div className="w-full h-4 bg-brut-black border-2 border-brut-black overflow-hidden shadow-brutalist-sm">
+                                <div className="h-full bg-brut-cyan border-r-2 border-brut-black" style={{ width: `${Math.min(pct, 100)}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {data.budgets.length === 0 && (
+                          <button onClick={() => setShowAddBudget(true)} className="w-full brutalist-button brutalist-button-cyan !py-8 font-black text-lg uppercase">
+                            + ADD YOUR FIRST BUDGET
+                          </button>
+                        )}
+                      </div>
+                   </div>
+
+                   {/* Recent Activity */}
+                   <div className="brutalist-card p-6 bg-brut-white">
+                      <p className="font-black text-lg uppercase tracking-tight mb-6">Recent Records</p>
+                      <div className="space-y-4">
+                        {data.transactions.slice(0, 4).map(t => (
+                          <div key={t.id} className="flex justify-between items-center p-3 border-3 border-brut-black bg-brut-white shadow-brutalist-sm group hover:bg-brut-yellow transition-colors">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className={`flex items-center justify-center border-2 border-brut-black h-10 w-10 shrink-0 shadow-brutalist-sm ${t.type === 'income' ? 'bg-brut-green' : 'bg-brut-cyan'}`}>
+                                {t.type === 'income' ? <FaArrowUp /> : <FaReceipt />}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-black uppercase truncate group-hover:text-brut-black">{t.desc}</p>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase">{formatDateShort(t.date)}</p>
+                              </div>
+                            </div>
+                            <span className={`text-xs font-black whitespace-nowrap px-2 border-2 border-brut-black shadow-brutalist-sm ${t.type === 'income' ? 'bg-brut-green' : 'bg-brut-white text-brut-black'}`}>
+                              {t.type === 'income' ? '+' : '-'}{formatRupiah(t.amount)}
+                            </span>
+                          </div>
+                        ))}
+                        {data.transactions.length === 0 && (
+                          <p className="text-sm text-center font-black text-gray-400 py-10 uppercase border-2 border-dashed border-brut-black">NO ACTIVITY YET</p>
+                        )}
+                      </div>
+                   </div>
                 </div>
-                {target > 0 && (
-                  <>
-                    <div className="w-full h-2.5 rounded-full mt-3 overflow-hidden" style={{ backgroundColor: '#f3f4f6' }}>
-                      <div className="h-2.5 rounded-full transition-all duration-700"
-                        style={{ width: `${Math.min(savingsProgress, 100)}%`, backgroundColor: '#10b981' }} />
-                    </div>
-                    <div className="flex justify-between mt-1 text-[10px]" style={{ color: '#9ca3af' }}>
-                      <span>{savingsProgress.toFixed(1)}%</span>
-                      <span>Kekurangan: {formatRupiah(fundingGap)}</span>
-                    </div>
-                  </>
-                )}
               </div>
+            )}
 
-              {/* Budget Items Status */}
-              <div className="rounded-2xl p-5 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                <p className="font-bold text-sm mb-3" style={{ color: '#374151' }}>Anggaran Pernikahan</p>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs font-bold" style={{ color: '#6b7280' }}>Rencana: {formatRupiah(totalPlan)}</span>
-                  <span className="text-xs font-bold" style={{ color: '#059669' }}>Terbayar: {formatRupiah(totalPaid)}</span>
+            {/* BUDGET TAB */}
+            {activeTab === 'budget' && (
+              <div className="space-y-6">
+                <div className="brutalist-card p-6 bg-brut-white flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="bg-brut-yellow border-4 border-brut-black p-4 w-full md:w-auto shadow-brutalist">
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">TOTAL PLANNED</p>
+                    <p className="text-3xl font-black">{formatRupiah(totalPlan)}</p>
+                  </div>
+                  <div className="bg-brut-green border-4 border-brut-black p-4 w-full md:w-auto shadow-brutalist">
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">TOTAL PAID</p>
+                    <p className="text-3xl font-black">{formatRupiah(totalPaid)}</p>
+                  </div>
                 </div>
-                {data.budgets.length === 0 ? (
-                  <button onClick={() => setShowAddBudget(true)}
-                    className="w-full py-3 rounded-xl text-xs font-bold" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
-                    + Tambah Anggaran
-                  </button>
-                ) : (
-                  data.budgets.slice(0, 5).map(b => {
+
+                <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setShowAddBudget(true); }}
+                  className="w-full brutalist-button brutalist-button-cyan !py-6 text-xl">
+                  + ADD BUDGET ITEM
+                </button>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {data.budgets.map((b) => {
                     const pct = b.plan > 0 ? (b.paid / b.plan) * 100 : 0;
                     return (
-                      <div key={b.id} className="flex items-center gap-2 py-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between text-xs">
-                            <span className="font-medium truncate" style={{ color: '#374151' }}>{b.item}</span>
-                            <span className="font-bold" style={{ color: '#111827' }}>{Math.round(pct)}%</span>
+                      <div key={b.id} className="brutalist-card p-5 bg-brut-white hover:bg-brut-yellow transition-colors group">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="min-w-0">
+                            <p className="font-black text-lg uppercase truncate">{b.item}</p>
+                            <p className="text-[10px] font-black bg-brut-black text-brut-white px-2 inline-block uppercase mt-1">{b.category}</p>
                           </div>
-                          <div className="w-full h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: '#f3f4f6' }}>
-                            <div className="h-1.5 rounded-full" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: '#111827' }} />
+                          {b.party !== 'joint' && (
+                            <span className={`text-[10px] font-black px-2 py-1 border-2 border-brut-black uppercase shadow-brutalist-sm ${
+                              b.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'
+                            }`}>
+                              {b.party === 'pria' ? 'Groom' : 'Bride'}
+                            </span>
+                          )}
+                        </div>
+                        <div className="w-full h-8 bg-brut-black border-3 border-brut-black overflow-hidden mb-3 relative">
+                          <div className="h-full bg-brut-green transition-all duration-500"
+                            style={{ width: `${Math.min(pct, 100)}%` }} />
+                          <span className="absolute inset-0 flex items-center justify-center font-black text-white text-xs mix-blend-difference">
+                             {Math.round(pct)}% PAID
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
+                           <div className="text-[10px] font-black uppercase">
+                              <span className="text-gray-500">Plan:</span> {formatRupiah(b.plan)}
+                           </div>
+                           <div className="text-[10px] font-black uppercase bg-brut-black text-brut-green px-2">
+                              PAID: {formatRupiah(b.paid)}
+                           </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* CHECKLIST TAB */}
+            {activeTab === 'checklist' && (
+              <div className="space-y-6">
+                <div className="brutalist-card p-6 bg-brut-white">
+                  <div className="flex items-center gap-6 mb-4">
+                    <span className="text-5xl border-4 border-brut-black p-4 bg-brut-yellow shadow-brutalist">{mot.emoji}</span>
+                    <div className="flex-1">
+                      <p className="font-black text-2xl uppercase tracking-tighter">{mot.text}</p>
+                      <p className="font-black text-sm uppercase bg-brut-cyan inline-block px-2 border-2 border-brut-black mt-2">
+                        {doneChecklist} / {totalChecklist} TASKS COMPLETED ({Math.round(checklistPct)}%)
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-full h-8 bg-brut-black border-4 border-brut-black overflow-hidden shadow-brutalist-sm">
+                    <div className="h-full bg-brut-green transition-all duration-700"
+                      style={{ width: `${Math.min(checklistPct, 100)}%` }} />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button onClick={() => setExpandedCategories(new Set())}
+                    className="brutalist-button brutalist-button-white !py-2 !text-xs uppercase">
+                    COLLAPSE ALL
+                  </button>
+                  <button onClick={() => setExpandedCategories(new Set(data.checklistCategories.map(c => c.id)))}
+                    className="brutalist-button brutalist-button-white !py-2 !text-xs uppercase">
+                    EXPAND ALL
+                  </button>
+                  <button onClick={() => setShowAddChecklistItem(true)}
+                    className="brutalist-button brutalist-button-cyan !py-2 !text-xs uppercase ml-auto">
+                    + NEW TASK
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  {data.checklistCategories.map(cat => {
+                    const items = data.checklistItems.filter(i => i.category_id === cat.id);
+                    const done = items.filter(i => i.completed).length;
+                    const expanded = expandedCategories.has(cat.id);
+                    return (
+                      <div key={cat.id} className="brutalist-card overflow-hidden">
+                        <button onClick={() => {
+                          const next = new Set(expandedCategories);
+                          if (expanded) { next.delete(cat.id); } else { next.add(cat.id); }
+                          setExpandedCategories(next);
+                        }}
+                          className="w-full flex items-center justify-between p-5 text-left bg-brut-yellow border-b-4 border-brut-black hover:bg-brut-cyan transition-colors group">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="font-black text-lg uppercase truncate tracking-tight">{cat.name}</span>
+                            <span className="text-xs font-black px-2 py-1 bg-brut-white border-2 border-brut-black shadow-brutalist-sm">
+                              {done}/{items.length}
+                            </span>
+                          </div>
+                          {expanded ? <FaChevronDown className="border-2 border-brut-black p-1 bg-brut-white shadow-brutalist-sm group-hover:bg-brut-yellow" /> : <FaChevronRight className="border-2 border-brut-black p-1 bg-brut-white shadow-brutalist-sm group-hover:bg-brut-yellow" />}
+                        </button>
+                        {expanded && (
+                          <div className="bg-brut-white divide-y-2 divide-brut-black">
+                            {items.map(item => (
+                              <div key={item.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                                <div className="relative shrink-0">
+                                  <input type="checkbox" checked={item.completed}
+                                    onChange={() => handleToggleChecklist(item.id, item.completed)}
+                                    className="w-10 h-10 border-4 border-brut-black appearance-none cursor-pointer checked:bg-brut-green shadow-brutalist-sm transition-all active:scale-90"
+                                  />
+                                  {item.completed && <FaCheckCircle className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-brut-black text-2xl" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className={`text-base font-black uppercase truncate ${item.completed ? 'line-through text-gray-400' : ''}`}>
+                                    {item.title}
+                                  </p>
+                                  <div className="flex gap-2 mt-1">
+                                    {item.assigned_to !== 'joint' && (
+                                      <span className={`text-[9px] font-black px-1.5 py-0.5 border-2 border-brut-black uppercase ${
+                                        item.assigned_to === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'
+                                      }`}>
+                                        {item.assigned_to === 'pria' ? 'GROOM' : 'BRIDE'}
+                                      </span>
+                                    )}
+                                    {item.due_date && <span className="text-[9px] font-black uppercase text-gray-500 bg-gray-200 px-1 border border-brut-black">{formatDateShort(item.due_date)}</span>}
+                                  </div>
+                                </div>
+                                <button onClick={() => handleDeleteChecklist(item.id)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm shrink-0">
+                                  <FaTrash className="text-sm" />
+                                </button>
+                              </div>
+                            ))}
+                            {items.length === 0 && (
+                              <p className="text-xs font-black text-center py-8 uppercase text-gray-400 border-2 border-dashed border-gray-200 m-4">EMPTY CATEGORY</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  
+                  {/* ADD CATEGORY CARD */}
+                  <div className="brutalist-card p-6 bg-brut-white border-dashed">
+                     <p className="font-black text-sm uppercase mb-4">Add New Category</p>
+                     <div className="flex gap-3">
+                        <input
+                          placeholder="CATEGORY NAME"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          className="flex-1 brutalist-input !py-2 uppercase text-xs"
+                        />
+                        <button onClick={handleAddCategory}
+                          className="brutalist-button brutalist-button-cyan !py-2 !px-4 text-xs font-black">
+                          ADD
+                        </button>
+                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ENGAGEMENT TAB */}
+            {activeTab === 'engagement' && (
+              <div className="space-y-6">
+                <div className="brutalist-card p-6 bg-brut-white">
+                  <p className="font-black text-2xl uppercase tracking-tighter mb-6 text-center border-b-4 border-brut-black pb-4">Engagement Summary</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="p-4 bg-brut-cyan border-4 border-brut-black shadow-brutalist text-center">
+                      <p className="text-xs font-black uppercase tracking-widest mb-2">ITEMS TOTAL</p>
+                      <p className="font-black text-5xl">{data.engagementItems.length}</p>
+                    </div>
+                    <div className="p-4 bg-brut-green border-4 border-brut-black shadow-brutalist text-center">
+                      <p className="text-xs font-black uppercase tracking-widest mb-2">ACTUAL COST</p>
+                      <p className="font-black text-3xl sm:text-4xl">{formatRupiah(engagementTotalActual)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 items-center justify-between">
+                  <div className="flex gap-2 p-1 border-3 border-brut-black bg-brut-white shadow-brutalist-sm">
+                    {(['all', 'pria', 'wanita', 'joint'] as const).map(p => (
+                      <button key={p} onClick={() => setPartyFilter(p)}
+                        className={`px-3 py-1 font-black text-[10px] uppercase border-2 border-transparent transition-all ${
+                          partyFilter === p ? 'bg-brut-black text-white border-brut-black shadow-brutalist-sm' : 'hover:bg-brut-yellow'
+                        }`}>
+                        {p === 'all' ? 'ALL' : p === 'pria' ? 'GROOM' : p === 'wanita' ? 'BRIDE' : 'JOINT'}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setFormStatus('planned'); setShowAddEngagement(true); }}
+                    className="brutalist-button brutalist-button-cyan !py-3 !text-sm uppercase">
+                    + ADD ENGAGEMENT ITEM
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {filteredEngagement.map(item => (
+                    <div key={item.id} className="brutalist-card p-5 bg-brut-white hover:bg-brut-yellow transition-colors group">
+                      <div className="flex justify-between items-start gap-4 mb-6">
+                        <div className="min-w-0 flex-1">
+                           <p className="font-black text-xl uppercase truncate group-hover:text-brut-black">{item.item}</p>
+                           <div className="flex flex-wrap gap-2 mt-2">
+                              <span className={`text-[10px] font-black px-2 py-0.5 border-2 border-brut-black uppercase shadow-brutalist-sm`}
+                                style={{ backgroundColor: STATUS_COLORS[item.status] }}>
+                                {item.status}
+                              </span>
+                              {item.party !== 'joint' && (
+                                <span className={`text-[10px] font-black px-2 py-0.5 border-2 border-brut-black uppercase shadow-brutalist-sm ${
+                                  item.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'
+                                }`}>
+                                  {item.party === 'pria' ? 'GROOM' : 'BRIDE'}
+                                </span>
+                              )}
+                           </div>
+                           <p className="text-[10px] font-black bg-brut-black text-brut-white px-2 inline-block uppercase mt-2">{item.category}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleOpenEditEngagement(item)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-brut-cyan flex items-center justify-center shadow-brutalist-sm transition-all active:translate-y-1">
+                            <FaEdit className="text-sm" />
+                          </button>
+                          <button onClick={() => handleDeleteEngagement(item.id)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm transition-all active:translate-y-1">
+                            <FaTrash className="text-sm" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 border-t-4 border-brut-black pt-5">
+                        <div className="bg-brut-white border-2 border-brut-black p-2 shadow-brutalist-sm">
+                          <p className="text-[8px] font-black uppercase text-gray-500 mb-1">BUDGET</p>
+                          <p className="text-xs font-black">{formatRupiah(item.budget_amount)}</p>
+                        </div>
+                        <div className="bg-brut-white border-2 border-brut-black p-2 shadow-brutalist-sm">
+                          <p className="text-[8px] font-black uppercase text-gray-500 mb-1">ACTUAL</p>
+                          <p className="text-xs font-black">{formatRupiah(item.actual_amount)}</p>
+                        </div>
+                        <div className={`border-2 border-brut-black p-2 shadow-brutalist-sm ${item.budget_amount >= item.actual_amount ? 'bg-brut-green' : 'bg-red-500 text-white'}`}>
+                          <p className="text-[8px] font-black uppercase opacity-70 mb-1">DIFF</p>
+                          <p className="text-xs font-black">{formatRupiah(item.budget_amount - item.actual_amount)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {filteredEngagement.length === 0 && (
+                     <div className="md:col-span-2 brutalist-card p-20 bg-brut-white border-dashed text-center">
+                        <p className="text-2xl font-black uppercase text-gray-300">NO ENGAGEMENT DATA</p>
+                     </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* SESERAHAN TAB */}
+            {activeTab === 'seserahan' && (
+              <div className="space-y-6">
+                <div className="brutalist-card p-6 bg-brut-white">
+                  <p className="font-black text-2xl uppercase tracking-tighter mb-6 text-center border-b-4 border-brut-black pb-4">Seserahan Summary</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="p-4 bg-brut-cyan border-4 border-brut-black shadow-brutalist text-center">
+                      <p className="text-xs font-black uppercase tracking-widest mb-2">TOTAL ITEMS</p>
+                      <p className="font-black text-5xl">{data.seserahanItems.length}</p>
+                    </div>
+                    <div className="p-4 bg-brut-green border-4 border-brut-black shadow-brutalist text-center">
+                      <p className="text-xs font-black uppercase tracking-widest mb-2">TOTAL COST</p>
+                      <p className="font-black text-3xl sm:text-4xl">{formatRupiah(seserahanTotalActual)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 items-center justify-between">
+                   <div className="flex gap-2 p-1 border-3 border-brut-black bg-brut-white shadow-brutalist-sm">
+                    {(['all', 'pria', 'wanita', 'joint'] as const).map(p => (
+                      <button key={p} onClick={() => setPartyFilter(p)}
+                        className={`px-3 py-1 font-black text-[10px] uppercase border-2 border-transparent transition-all ${
+                          partyFilter === p ? 'bg-brut-black text-white border-brut-black shadow-brutalist-sm' : 'hover:bg-brut-yellow'
+                        }`}>
+                        {p === 'all' ? 'ALL' : p === 'pria' ? 'GROOM' : p === 'wanita' ? 'BRIDE' : 'JOINT'}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setFormStatus('planned'); setShowAddSeserahan(true); }}
+                    className="brutalist-button brutalist-button-cyan !py-3 !text-sm uppercase">
+                    + ADD SESERAHAN ITEM
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {filteredSeserahan.map(item => (
+                    <div key={item.id} className="brutalist-card p-5 bg-brut-white hover:bg-brut-yellow transition-colors group">
+                      <div className="flex justify-between items-start gap-4 mb-6">
+                        <div className="min-w-0 flex-1">
+                           <p className="font-black text-xl uppercase truncate group-hover:text-brut-black">{item.item}</p>
+                           <div className="flex flex-wrap gap-2 mt-2">
+                              <span className={`text-[10px] font-black px-2 py-0.5 border-2 border-brut-black uppercase shadow-brutalist-sm`}
+                                style={{ backgroundColor: STATUS_COLORS[item.status] }}>
+                                {item.status}
+                              </span>
+                              {item.party !== 'joint' && (
+                                <span className={`text-[10px] font-black px-2 py-0.5 border-2 border-brut-black uppercase shadow-brutalist-sm ${
+                                  item.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'
+                                }`}>
+                                  {item.party === 'pria' ? 'GROOM' : 'BRIDE'}
+                                </span>
+                              )}
+                           </div>
+                           <p className="text-[10px] font-black bg-brut-black text-brut-white px-2 inline-block uppercase mt-2">{item.category}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleOpenEditSeserahan(item)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-brut-cyan flex items-center justify-center shadow-brutalist-sm transition-all">
+                            <FaEdit className="text-sm" />
+                          </button>
+                          <button onClick={() => handleDeleteSeserahan(item.id)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm transition-all">
+                            <FaTrash className="text-sm" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 border-t-4 border-brut-black pt-5">
+                        <div className="bg-brut-white border-2 border-brut-black p-2 shadow-brutalist-sm">
+                          <p className="text-[8px] font-black uppercase text-gray-500 mb-1">BUDGET</p>
+                          <p className="text-xs font-black">{formatRupiah(item.budget_amount)}</p>
+                        </div>
+                        <div className="bg-brut-white border-2 border-brut-black p-2 shadow-brutalist-sm">
+                          <p className="text-[8px] font-black uppercase text-gray-500 mb-1">ACTUAL</p>
+                          <p className="text-xs font-black">{formatRupiah(item.actual_amount)}</p>
+                        </div>
+                        <div className={`border-2 border-brut-black p-2 shadow-brutalist-sm ${item.budget_amount >= item.actual_amount ? 'bg-brut-green' : 'bg-red-500 text-white'}`}>
+                          <p className="text-[8px] font-black uppercase opacity-70 mb-1">DIFF</p>
+                          <p className="text-xs font-black">{formatRupiah(item.budget_amount - item.actual_amount)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {filteredSeserahan.length === 0 && (
+                     <div className="md:col-span-2 brutalist-card p-20 bg-brut-white border-dashed text-center">
+                        <p className="text-2xl font-black uppercase text-gray-300">NO SESERAHAN DATA</p>
+                     </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* SAVINGS TAB */}
+            {activeTab === 'savings' && (
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Total Collected */}
+                  <div className="brutalist-card p-8 bg-brut-white flex flex-col justify-center text-center">
+                    <div className="flex justify-between items-center mb-8">
+                      <p className="font-black text-xl uppercase tracking-tighter">Savings Progress</p>
+                      <button onClick={() => { setFormAmount(target.toString()); setShowTargetModal(true); }}
+                        className="brutalist-button brutalist-button-pink !py-2 !text-xs uppercase">
+                        EDIT TARGET
+                      </button>
+                    </div>
+                    <div className="bg-brut-yellow border-4 border-brut-black p-6 sm:p-10 shadow-brutalist mb-8 group hover:scale-[1.02] transition-transform overflow-hidden">
+                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mb-4 text-gray-800">TOTAL FUNDS COLLECTED</p>
+                      <p className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter truncate">{formatRupiah(totalIncome)}</p>
+                    </div>
+                    {target > 0 && (
+                      <div className="space-y-4">
+                        <div className="w-full h-14 bg-brut-black border-4 border-brut-black overflow-hidden relative shadow-brutalist-sm">
+                          <div className="h-full bg-brut-green transition-all duration-1000"
+                            style={{ width: `${Math.min(savingsProgress, 100)}%` }} />
+                          <span className="absolute inset-0 flex items-center justify-center font-black text-2xl text-white mix-blend-difference">
+                            {Math.round(savingsProgress)}%
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 pt-4">
+                          <div className="bg-brut-white border-3 border-brut-black p-3 shadow-brutalist-sm">
+                            <p className="text-[10px] font-black uppercase text-gray-500 mb-1">STILL NEEDED</p>
+                            <p className="text-lg font-black text-red-600">{formatRupiah(savingsNeeded)}</p>
+                          </div>
+                          <div className="bg-brut-white border-3 border-brut-black p-3 shadow-brutalist-sm">
+                            <p className="text-[10px] font-black uppercase text-gray-500 mb-1">FINAL TARGET</p>
+                            <p className="text-lg font-black">{formatRupiah(target)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-8">
+                    {/* Quick Deposit */}
+                    <div className="brutalist-card p-6 bg-brut-white">
+                      <p className="font-black text-xl uppercase tracking-tighter mb-6 border-b-4 border-brut-black pb-2 inline-block">Quick Bank Deposit</p>
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        {QUICK_SELECT.map(qty => (
+                          <button key={qty} onClick={() => handleAddDeposit(qty)}
+                            className="brutalist-button brutalist-button-white !py-4 text-lg">
+                            {formatRupiah(qty)}
+                          </button>
+                        ))}
+                      </div>
+                      <button onClick={() => { setFormAmount(''); setFormDesc(''); setShowDepositModal(true); }}
+                        className="w-full brutalist-button brutalist-button-cyan !py-5 font-black text-xl uppercase shadow-brutalist">
+                        + CUSTOM DEPOSIT
+                      </button>
+                    </div>
+
+                    {/* History */}
+                    <div className="brutalist-card p-6 bg-brut-white">
+                      <p className="font-black text-xl uppercase tracking-tighter mb-6 border-b-4 border-brut-black pb-2 inline-block">Deposit Logs</p>
+                      <div className="space-y-3">
+                        {data.transactions.filter(t => t.type === 'income').slice(0, 6).map(t => (
+                          <div key={t.id} className="flex justify-between items-center p-3 border-3 border-brut-black bg-brut-white shadow-brutalist-sm hover:bg-brut-green transition-colors text-brut-black">
+                            <div>
+                              <p className="text-sm font-black uppercase">{t.desc}</p>
+                              <p className="text-[10px] font-bold text-gray-500 uppercase">{formatDateShort(t.date)}</p>
+                            </div>
+                            <span className="text-sm font-black bg-brut-black text-brut-green px-3 py-1 border-2 border-brut-green shadow-brutalist-sm">+{formatRupiah(t.amount)}</span>
+                          </div>
+                        ))}
+                        {data.transactions.filter(t => t.type === 'income').length === 0 && (
+                           <p className="text-center font-black text-gray-400 py-10 uppercase border-2 border-dashed border-gray-200">NO DEPOSITS FOUND</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TIMELINE TAB */}
+            {activeTab === 'timeline' && (
+              <div className="space-y-8">
+                <div className="flex gap-4 border-b-4 border-brut-black pb-6 overflow-x-auto no-scrollbar">
+                  <button onClick={() => setTimelineView('calendar')}
+                    className={`brutalist-button !py-3 !px-8 text-sm uppercase tracking-widest ${
+                      timelineView === 'calendar' ? 'bg-brut-cyan' : 'bg-brut-white text-brut-black'
+                    }`}>
+                    <FaCalendarAlt className="inline mr-2" /> CALENDAR VIEW
+                  </button>
+                  <button onClick={() => setTimelineView('gantt')}
+                    className={`brutalist-button !py-3 !px-8 text-sm uppercase tracking-widest ${
+                      timelineView === 'gantt' ? 'bg-brut-cyan' : 'bg-brut-white text-brut-black'
+                    }`}>
+                    <FaChartBar className="inline mr-2" /> GANTT CHART
+                  </button>
+                </div>
+
+                {timelineView === 'calendar' && (
+                  (() => {
+                    const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+                    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+                    const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+                    const today = new Date();
+                    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+                    const eventsOnDate = (day: number) =>
+                      data.timeline.filter(e => {
+                        if (!e.deadline) return false;
+                        const d = new Date(e.deadline);
+                        return d.getDate() === day && d.getMonth() === calendarMonth && d.getFullYear() === calendarYear;
+                      });
+
+                    const catColors: Record<string, string> = {
+                      Vendor: '#00F0FF', Konsep: '#FEFF00', Perhiasan: '#FF00FF',
+                      Busana: '#00FF00', Admin: '#FFFFFF', Keuangan: '#00FF00',
+                      Acara: '#FF0000', Barang: '#FFA500', Digital: '#00F0FF', Personal: '#00FF00',
+                    };
+
+                    return (
+                      <div className="brutalist-card p-6 bg-brut-white shadow-brutalist">
+                        <div className="flex items-center justify-between mb-8">
+                          <button onClick={() => { if (calendarMonth === 0) { setCalendarMonth(11); setCalendarYear(y => y - 1); } else setCalendarMonth(m => m - 1); }}
+                            className="w-12 h-12 border-4 border-brut-black bg-brut-white shadow-brutalist-sm flex items-center justify-center text-2xl active:translate-y-1">
+                            <FaChevronLeft />
+                          </button>
+                          <p className="font-black text-3xl uppercase tracking-tighter bg-brut-black text-brut-white px-4 border-4 border-brut-black shadow-brutalist-sm">{months[calendarMonth]} {calendarYear}</p>
+                          <button onClick={() => { if (calendarMonth === 11) { setCalendarMonth(0); setCalendarYear(y => y + 1); } else setCalendarMonth(m => m + 1); }}
+                            className="w-12 h-12 border-4 border-brut-black bg-brut-white shadow-brutalist-sm flex items-center justify-center text-2xl active:translate-y-1">
+                            <FaChevronRightIcon />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-7 border-4 border-brut-black">
+                          {dayNames.map(d => (
+                            <div key={d} className="text-center font-black text-xs uppercase py-4 border-b-4 border-brut-black bg-gray-100 text-brut-black">{d}</div>
+                          ))}
+                          {Array.from({ length: firstDay }).map((_, i) => (
+                            <div key={`empty-${i}`} className="p-1 min-h-[80px] sm:min-h-[120px] border-r-4 border-b-4 border-brut-black bg-gray-50/50" />
+                          ))}
+                          {Array.from({ length: daysInMonth }).map((_, i) => {
+                            const day = i + 1;
+                            const events = eventsOnDate(day);
+                            const isToday = day === today.getDate() && calendarMonth === today.getMonth() && calendarYear === today.getFullYear();
+                            return (
+                              <div key={day} className={`p-1 min-h-[80px] sm:min-h-[120px] border-r-4 border-b-4 border-brut-black relative group ${isToday ? 'bg-brut-cyan/20' : 'bg-brut-white hover:bg-brut-yellow/10 transition-colors'}`}>
+                                <div className="text-right p-1">
+                                  <span className={`text-sm font-black w-8 h-8 flex items-center justify-center border-2 border-brut-black shadow-brutalist-sm ml-auto ${isToday ? 'bg-brut-black text-white' : 'bg-brut-white text-brut-black'}`}>
+                                    {day}
+                                  </span>
+                                </div>
+                                <div className="mt-2 space-y-1 overflow-y-auto max-h-[80px] no-scrollbar">
+                                  {events.map(e => (
+                                    <div key={e.id} className="text-[7px] sm:text-[9px] font-black truncate px-1 border-2 border-brut-black uppercase leading-none py-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-brut-black"
+                                      style={{ backgroundColor: catColors[e.category] || '#FFF' }}>
+                                      {e.task}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()
+                )}
+
+                {timelineView === 'gantt' && (
+                  (() => {
+                    if (!data.settings.wedding_date) {
+                      return <div className="brutalist-card p-20 bg-brut-white text-center">
+                        <p className="text-xl font-black uppercase text-gray-400">SET WEDDING DATE TO GENERATE GANTT CHART</p>
+                      </div>;
+                    }
+                    const startDate = new Date();
+                    const endDate = new Date(data.settings.wedding_date);
+                    const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + endDate.getMonth() - startDate.getMonth() + 1;
+
+                    const monthLabels: string[] = [];
+                    for (let i = 0; i < totalMonths; i++) {
+                      const d = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+                      monthLabels.push(d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }));
+                    }
+
+                    const sortedTimeline = [...data.timeline].sort((a, b) => {
+                      if (!a.deadline) return 1; if (!b.deadline) return -1;
+                      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+                    });
+
+                    const getTaskPosition = (deadline?: string) => {
+                      if (!deadline) return { left: '0%', width: '0%' };
+                      const d = new Date(deadline);
+                      const monthIdx = (d.getFullYear() - startDate.getFullYear()) * 12 + d.getMonth() - startDate.getMonth();
+                      const pct = Math.max(0, Math.min(monthIdx / totalMonths * 100, 95));
+                      return { left: `${pct}%`, width: `${Math.max(8, 100 / totalMonths)}%` };
+                    };
+
+                    const barCatColors: Record<string, string> = {
+                      Vendor: '#00F0FF', Konsep: '#FEFF00', Perhiasan: '#FF00FF',
+                      Busana: '#00FF00', Admin: '#FFFFFF', Keuangan: '#00FF00',
+                      Acara: '#FF0000', Barang: '#FFA500', Digital: '#00F0FF', Personal: '#00FF00',
+                    };
+
+                    return (
+                      <div className="brutalist-card p-6 bg-brut-white overflow-x-auto shadow-brutalist">
+                        <p className="font-black text-xl uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Gantt Pipeline</p>
+                        <div className="min-w-[800px]">
+                          <div className="flex border-b-4 border-brut-black mb-6 pb-4" style={{ marginLeft: '160px' }}>
+                            {monthLabels.map((m, i) => (
+                              <div key={i} className="text-xs font-black text-center flex-1 uppercase tracking-widest border-l-2 border-gray-200 text-brut-black">
+                                {m}
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="space-y-6 max-h-[600px] overflow-y-auto pr-4 no-scrollbar">
+                            {sortedTimeline.map(e => {
+                              const pos = getTaskPosition(e.deadline);
+                              return (
+                                <div key={e.id} className="flex items-center gap-6 group">
+                                  <div className="text-[11px] font-black uppercase truncate w-[140px] shrink-0 group-hover:text-brut-cyan transition-colors text-brut-black">
+                                    {e.task}
+                                  </div>
+                                  <div className="flex-1 relative h-10 bg-gray-100 border-3 border-brut-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
+                                    <div className="absolute h-full border-r-3 border-brut-black flex items-center justify-center transition-all shadow-brutalist-sm active:scale-95 cursor-pointer"
+                                      style={{
+                                        left: pos.left,
+                                        width: pos.width,
+                                        backgroundColor: barCatColors[e.category] || '#9ca3af',
+                                      }}>
+                                      {e.status === 'Done' && <FaCheckCircle className="text-black text-sm" />}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
                     );
-                  })
-                )}
-                {data.budgets.length > 5 && (
-                  <button onClick={() => setActiveTab('budget')} className="w-full text-center text-xs font-bold mt-2" style={{ color: '#111827' }}>
-                    Lihat semua ({data.budgets.length})
-                  </button>
+                  })()
                 )}
               </div>
-
-              {/* Recent Transactions */}
-              <div className="rounded-2xl p-5 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                <p className="font-bold text-sm mb-3" style={{ color: '#374151' }}>Transaksi Terakhir</p>
-                {data.transactions.slice(0, 3).map(t => (
-                  <div key={t.id} className="flex justify-between items-center py-2 border-b" style={{ borderColor: '#f3f4f6' }}>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="flex items-center justify-center text-xs"
-                        style={{ width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0, backgroundColor: t.type === 'income' ? '#d1fae5' : '#e5e7eb', color: t.type === 'income' ? '#059669' : '#111827' }}>
-                        {t.type === 'income' ? <FaArrowUp /> : <FaReceipt />}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold truncate" style={{ color: '#374151' }}>{t.desc}</p>
-                        <p className="text-[10px]" style={{ color: '#9ca3af' }}>{formatDateShort(t.date)}</p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-bold flex-shrink-0" style={{ color: t.type === 'income' ? '#059669' : '#111827' }}>
-                      {t.type === 'income' ? '+' : '-'}{formatRupiah(t.amount)}
-                    </span>
-                  </div>
-                ))}
-                {data.transactions.length === 0 && (
-                  <p className="text-xs text-center" style={{ color: '#9ca3af' }}>Belum ada transaksi</p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ===== BUDGET TAB ===== */}
-          {activeTab === 'budget' && (
-            <div className="space-y-3">
-              <div className="p-4 rounded-xl flex justify-between items-center" style={{ backgroundColor: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                <div>
-                  <p className="text-xs font-bold uppercase" style={{ color: '#6b7280' }}>Total Rencana</p>
-                  <p className="text-lg font-bold" style={{ color: '#111827' }}>{formatRupiah(totalPlan)}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-bold uppercase" style={{ color: '#6b7280' }}>Sudah Dibayar</p>
-                  <p className="text-lg font-bold" style={{ color: '#059669' }}>{formatRupiah(totalPaid)}</p>
-                </div>
-              </div>
-
-              <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setShowAddBudget(true); }}
-                className="w-full py-3 rounded-xl text-xs font-bold" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
-                + Tambah Anggaran
-              </button>
-
-              {data.budgets.map((b) => {
-                const pct = b.plan > 0 ? (b.paid / b.plan) * 100 : 0;
-                return (
-                  <div key={b.id} className="p-4 rounded-xl shadow-sm" style={{ backgroundColor: '#fff', border: '1px solid #f3f4f6' }}>
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm truncate" style={{ color: '#374151' }}>{b.item}</span>
-                          {b.party !== 'joint' && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{
-                              backgroundColor: b.party === 'pria' ? '#dbeafe' : '#e5e7eb',
-                              color: b.party === 'pria' ? '#2563eb' : '#111827',
-                            }}>
-                              {b.party === 'pria' ? 'Pria' : 'Wanita'}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[10px]" style={{ color: '#9ca3af' }}>{b.category}</p>
-                      </div>
-                    </div>
-                    <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#f3f4f6' }}>
-                      <div className="h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: '#111827' }} />
-                    </div>
-                    <div className="flex justify-between mt-1 text-[10px]" style={{ color: '#9ca3af' }}>
-                      <span>Dibayar: {formatRupiah(b.paid)}</span>
-                      <span>Rencana: {formatRupiah(b.plan)}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* ===== CHECKLIST TAB ===== */}
-          {activeTab === 'checklist' && (
-            <div className="space-y-3">
-              {/* Motivation */}
-              <div className="p-3 rounded-xl" style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{mot.emoji}</span>
-                  <div>
-                    <p className="font-bold text-sm" style={{ color: '#111827' }}>{mot.text}</p>
-                    <p className="text-xs" style={{ color: '#6b7280' }}>{doneChecklist}/{totalChecklist} selesai ({Math.round(checklistPct)}%)</p>
-                  </div>
-                </div>
-                <div className="w-full h-2 rounded-full mt-2 overflow-hidden" style={{ backgroundColor: '#e5e7eb' }}>
-                  <div className="h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min(checklistPct, 100)}%`, backgroundColor: '#111827' }} />
-                </div>
-              </div>
-
-              {/* Category filter */}
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                <button onClick={() => setExpandedCategories(new Set())}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                    backgroundColor: '#fff', border: '1px solid #f3f4f6', color: '#6b7280' }}>
-                  Collapse All
-                </button>
-                <button onClick={() => setExpandedCategories(new Set(data.checklistCategories.map(c => c.id)))}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                    backgroundColor: '#fff', border: '1px solid #f3f4f6', color: '#6b7280' }}>
-                  Expand All
-                </button>
-                <button onClick={() => setShowAddChecklistItem(true)}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                    backgroundColor: '#111827', color: '#fff' }}>
-                  + Tambah Data
-                </button>
-              </div>
-
-              {/* Categories */}
-              {data.checklistCategories.map(cat => {
-                const items = data.checklistItems.filter(i => i.category_id === cat.id);
-                const done = items.filter(i => i.completed).length;
-                const expanded = expandedCategories.has(cat.id);
-                return (
-                  <div key={cat.id} className="rounded-xl overflow-hidden" style={{ border: '1px solid #f3f4f6' }}>
-                    <button onClick={() => {
-                      const next = new Set(expandedCategories);
-                      if (expanded) { next.delete(cat.id); } else { next.add(cat.id); }
-                      setExpandedCategories(next);
-                    }}
-                      className="w-full flex items-center justify-between p-3 text-left" style={{ backgroundColor: '#f9fafb' }}>
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-bold text-sm truncate" style={{ color: '#374151' }}>{cat.name}</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#e5e7eb', color: '#111827' }}>
-                          {done}/{items.length}
-                        </span>
-                      </div>
-                      {expanded ? <FaChevronDown style={{ color: '#9ca3af', fontSize: '12px' }} /> : <FaChevronRight style={{ color: '#9ca3af', fontSize: '12px' }} />}
-                    </button>
-                    {expanded && (
-                      <div className="divide-y" style={{ borderColor: '#f3f4f6' }}>
-                        {items.map(item => (
-                          <div key={item.id} className="flex items-center gap-3 p-3" style={{ backgroundColor: '#fff' }}>
-                            <input type="checkbox" checked={item.completed}
-                              onChange={() => handleToggleChecklist(item.id, item.completed)}
-                              style={{
-                                WebkitAppearance: 'none', appearance: 'none', width: '22px', height: '22px',
-                                border: '2px solid ' + (item.completed ? '#111827' : '#d1d5db'),
-                                borderRadius: '6px', backgroundColor: item.completed ? '#111827' : 'transparent',
-                                cursor: 'pointer', flexShrink: 0,
-                              }} />
-                            {item.completed && <FaCheckCircle className="absolute pointer-events-none" style={{ color: '#fff', width: '22px', height: '22px', padding: '3px' }} />}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold truncate" style={{
-                                color: item.completed ? '#9ca3af' : '#374151',
-                                textDecoration: item.completed ? 'line-through' : 'none',
-                              }}>{item.title}</p>
-                              <div className="flex gap-1 mt-0.5">
-                                {item.assigned_to !== 'joint' && (
-                                  <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{
-                                    backgroundColor: item.assigned_to === 'pria' ? '#dbeafe' : '#e5e7eb',
-                                    color: item.assigned_to === 'pria' ? '#2563eb' : '#111827',
-                                  }}>
-                                    {item.assigned_to === 'pria' ? 'Pria' : 'Wanita'}
-                                  </span>
-                                )}
-                                {item.due_date && <span className="text-[8px]" style={{ color: '#9ca3af' }}>{formatDateShort(item.due_date)}</span>}
-                              </div>
-                            </div>
-                            <button onClick={() => handleDeleteChecklist(item.id)} className="p-1.5 rounded-lg flex-shrink-0" style={{ color: '#ef4444' }}>
-                              <FaTrash style={{ fontSize: '11px' }} />
-                            </button>
-                          </div>
-                        ))}
-                        {items.length === 0 && (
-                          <p className="text-xs text-center py-3" style={{ color: '#9ca3af' }}>Belum ada item</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              {data.checklistCategories.length === 0 && (
-                <div className="text-center py-6">
-                  <p className="text-sm font-bold" style={{ color: '#9ca3af' }}>Belum ada kategori</p>
-                  <p className="text-xs mt-1" style={{ color: '#d1d5db' }}>Tambahkan kategori checklist dulu</p>
-                  <div className="mt-3 flex justify-center gap-2">
-                    <input
-                      placeholder="Nama kategori"
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="p-2 rounded-xl text-xs outline-none"
-                      style={{ border: '1px solid #e5e7eb', color: '#374151', width: '150px' }}
-                    />
-                    <button onClick={handleAddCategory}
-                      className="text-xs font-bold px-3 py-2 rounded-xl" style={{ backgroundColor: '#111827', color: '#fff' }}>
-                      Tambah
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ===== ENGAGEMENT TAB ===== */}
-          {activeTab === 'engagement' && (
-            <div className="space-y-3">
-              {/* Summary */}
-              <div className="p-4 rounded-xl" style={{ backgroundColor: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                <p className="font-bold text-sm mb-2" style={{ color: '#374151' }}>Ringkasan Engagement</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2 rounded-lg text-center" style={{ backgroundColor: '#fff' }}>
-                    <p className="text-[10px] font-bold" style={{ color: '#9ca3af' }}>Total Item</p>
-                    <p className="font-bold text-lg" style={{ color: '#374151' }}>{data.engagementItems.length}</p>
-                  </div>
-                  <div className="p-2 rounded-lg text-center" style={{ backgroundColor: '#fff' }}>
-                    <p className="text-[10px] font-bold" style={{ color: '#9ca3af' }}>Total Biaya</p>
-                    <p className="font-bold text-lg" style={{ color: '#111827' }}>{formatRupiah(engagementTotalActual)}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Split Budget */}
-              {(() => {
-                const pria = data.engagementItems.filter(i => i.party === 'pria').reduce((a, i) => a + i.budget_amount, 0);
-                const wanita = data.engagementItems.filter(i => i.party === 'wanita').reduce((a, i) => a + i.budget_amount, 0);
-                const total = pria + wanita;
-                return total > 0 ? (
-                  <div className="p-4 rounded-xl" style={{ border: '1px solid #f3f4f6' }}>
-                    <p className="text-xs font-bold mb-2" style={{ color: '#6b7280' }}>Split Budget</p>
-                    <div className="flex gap-3">
-                      <div className="flex-1 p-2 rounded-lg" style={{ backgroundColor: '#dbeafe' }}>
-                        <p className="text-[10px] font-bold text-center" style={{ color: '#2563eb' }}>Pria</p>
-                        <p className="text-xs font-bold text-center" style={{ color: '#1e40af' }}>{formatRupiah(pria)}</p>
-                      </div>
-                      <div className="flex-1 p-2 rounded-lg" style={{ backgroundColor: '#e5e7eb' }}>
-                        <p className="text-[10px] font-bold text-center" style={{ color: '#111827' }}>Wanita</p>
-                        <p className="text-xs font-bold text-center" style={{ color: '#111827' }}>{formatRupiah(wanita)}</p>
-                      </div>
-                      <div className="flex-1 p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
-                        <p className="text-[10px] font-bold text-center" style={{ color: '#6b7280' }}>Total</p>
-                        <p className="text-xs font-bold text-center" style={{ color: '#374151' }}>{formatRupiah(total)}</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : null;
-              })()}
-
-              {/* Party Filter */}
-              <div className="flex gap-2">
-                {(['all', 'pria', 'wanita', 'joint'] as const).map(p => (
-                  <button key={p} onClick={() => setPartyFilter(p)}
-                    className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                      backgroundColor: partyFilter === p ? '#111827' : '#fff',
-                      color: partyFilter === p ? '#fff' : '#6b7280',
-                      border: partyFilter === p ? 'none' : '1px solid #f3f4f6',
-                    }}>
-                    {p === 'all' ? 'Semua' : p === 'pria' ? 'Pria' : p === 'wanita' ? 'Wanita' : 'Bersama'}
-                  </button>
-                ))}
-                <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setFormStatus('planned'); setShowAddEngagement(true); }}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-auto" style={{ backgroundColor: '#111827', color: '#fff' }}>
-                  + Tambah
-                </button>
-              </div>
-
-              {/* Items */}
-              {filteredEngagement.map(item => (
-                <div key={item.id} className="p-3 rounded-xl shadow-sm" style={{ backgroundColor: '#fff', border: '1px solid #f3f4f6' }}>
-                  <div className="flex justify-between items-start">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm truncate" style={{ color: '#374151' }}>{item.item}</span>
-                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded"
-                          style={{ backgroundColor: `${STATUS_COLORS[item.status]}20`, color: STATUS_COLORS[item.status] }}>
-                          {item.status}
-                        </span>
-                        {item.party !== 'joint' && (
-                          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
-                            backgroundColor: item.party === 'pria' ? '#dbeafe' : '#e5e7eb',
-                            color: item.party === 'pria' ? '#2563eb' : '#111827',
-                          }}>
-                            {item.party === 'pria' ? 'Pria' : 'Wanita'}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[10px] mt-0.5" style={{ color: '#9ca3af' }}>{item.category}</p>
-                    </div>
-                    <div className="flex gap-1 flex-shrink-0">
-                      <button onClick={() => handleOpenEditEngagement(item)} className="p-1.5 rounded-lg text-xs" style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>
-                        <FaEdit />
-                      </button>
-                      <button onClick={() => handleDeleteEngagement(item.id)} className="p-1.5 rounded-lg text-xs" style={{ color: '#ef4444', backgroundColor: '#fef2f2' }}>
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                  {/* Budget vs Realisasi */}
-                  <div className="mt-2 flex gap-3">
-                    <div className="flex-1">
-                      <p className="text-[9px] font-bold" style={{ color: '#f59e0b' }}>Budget</p>
-                      <p className="text-xs font-bold" style={{ color: '#374151' }}>{formatRupiah(item.budget_amount)}</p>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[9px] font-bold" style={{ color: '#10b981' }}>Realisasi</p>
-                      <p className="text-xs font-bold" style={{ color: '#374151' }}>{formatRupiah(item.actual_amount)}</p>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[9px] font-bold" style={{ color: '#6b7280' }}>Selisih</p>
-                      <p className="text-xs font-bold" style={{
-                        color: item.budget_amount >= item.actual_amount ? '#059669' : '#ef4444'
-                      }}>
-                        {formatRupiah(item.budget_amount - item.actual_amount)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {filteredEngagement.length === 0 && (
-                <p className="text-xs text-center py-6" style={{ color: '#9ca3af' }}>Belum ada item engagement</p>
-              )}
-            </div>
-          )}
-
-          {/* ===== SESERAHAN TAB ===== */}
-          {activeTab === 'seserahan' && (
-            <div className="space-y-3">
-              {/* Summary */}
-              <div className="p-4 rounded-xl" style={{ backgroundColor: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                <p className="font-bold text-sm mb-2" style={{ color: '#374151' }}>Ringkasan Seserahan</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2 rounded-lg text-center" style={{ backgroundColor: '#fff' }}>
-                    <p className="text-[10px] font-bold" style={{ color: '#9ca3af' }}>Total Item</p>
-                    <p className="font-bold text-lg" style={{ color: '#374151' }}>{data.seserahanItems.length}</p>
-                  </div>
-                  <div className="p-2 rounded-lg text-center" style={{ backgroundColor: '#fff' }}>
-                    <p className="text-[10px] font-bold" style={{ color: '#9ca3af' }}>Total Biaya</p>
-                    <p className="font-bold text-lg" style={{ color: '#111827' }}>{formatRupiah(seserahanTotalActual)}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Budget vs Realisasi Summary */}
-              {(() => {
-                const totalBudgetSeserahan = data.seserahanItems.reduce((a, i) => a + i.budget_amount, 0);
-                const totalActualSeserahan = data.seserahanItems.reduce((a, i) => a + i.actual_amount, 0);
-                return (
-                  <div className="p-4 rounded-xl" style={{ border: '1px solid #f3f4f6' }}>
-                    <p className="text-xs font-bold mb-2" style={{ color: '#6b7280' }}>Budget vs Realisasi</p>
-                    <div className="flex gap-3">
-                      <div className="flex-1 p-2 rounded-lg text-center" style={{ backgroundColor: '#fffbeb' }}>
-                        <p className="text-[10px] font-bold" style={{ color: '#f59e0b' }}>Budget</p>
-                        <p className="text-sm font-bold" style={{ color: '#92400e' }}>{formatRupiah(totalBudgetSeserahan)}</p>
-                      </div>
-                      <div className="flex-1 p-2 rounded-lg text-center" style={{ backgroundColor: '#f0fdf4' }}>
-                        <p className="text-[10px] font-bold" style={{ color: '#16a34a' }}>Realisasi</p>
-                        <p className="text-sm font-bold" style={{ color: '#166534' }}>{formatRupiah(totalActualSeserahan)}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Party Filter */}
-              <div className="flex gap-2">
-                {(['all', 'pria', 'wanita', 'joint'] as const).map(p => (
-                  <button key={p} onClick={() => setPartyFilter(p)}
-                    className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{
-                      backgroundColor: partyFilter === p ? '#111827' : '#fff',
-                      color: partyFilter === p ? '#fff' : '#6b7280',
-                      border: partyFilter === p ? 'none' : '1px solid #f3f4f6',
-                    }}>
-                    {p === 'all' ? 'Semua' : p === 'pria' ? 'Pria' : p === 'wanita' ? 'Wanita' : 'Bersama'}
-                  </button>
-                ))}
-                <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setFormStatus('planned'); setShowAddSeserahan(true); }}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-auto" style={{ backgroundColor: '#111827', color: '#fff' }}>
-                  + Tambah
-                </button>
-              </div>
-
-              {/* Items */}
-              {filteredSeserahan.map(item => (
-                <div key={item.id} className="p-3 rounded-xl shadow-sm" style={{ backgroundColor: '#fff', border: '1px solid #f3f4f6' }}>
-                  <div className="flex justify-between items-start">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm truncate" style={{ color: '#374151' }}>{item.item}</span>
-                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded"
-                          style={{ backgroundColor: `${STATUS_COLORS[item.status]}20`, color: STATUS_COLORS[item.status] }}>
-                          {item.status}
-                        </span>
-                        {item.party !== 'joint' && (
-                          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{
-                            backgroundColor: item.party === 'pria' ? '#dbeafe' : '#e5e7eb',
-                            color: item.party === 'pria' ? '#2563eb' : '#111827',
-                          }}>
-                            {item.party === 'pria' ? 'Pria' : 'Wanita'}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[10px] mt-0.5" style={{ color: '#9ca3af' }}>{item.category}</p>
-                    </div>
-                    <div className="flex gap-1 flex-shrink-0">
-                      <button onClick={() => handleOpenEditSeserahan(item)} className="p-1.5 rounded-lg text-xs" style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>
-                        <FaEdit />
-                      </button>
-                      <button onClick={() => handleDeleteSeserahan(item.id)} className="p-1.5 rounded-lg text-xs" style={{ color: '#ef4444', backgroundColor: '#fef2f2' }}>
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="mt-2 flex gap-3">
-                    <div className="flex-1">
-                      <p className="text-[9px] font-bold" style={{ color: '#f59e0b' }}>Budget</p>
-                      <p className="text-xs font-bold" style={{ color: '#374151' }}>{formatRupiah(item.budget_amount)}</p>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[9px] font-bold" style={{ color: '#10b981' }}>Realisasi</p>
-                      <p className="text-xs font-bold" style={{ color: '#374151' }}>{formatRupiah(item.actual_amount)}</p>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[9px] font-bold" style={{ color: '#6b7280' }}>Selisih</p>
-                      <p className="text-xs font-bold" style={{
-                        color: item.budget_amount >= item.actual_amount ? '#059669' : '#ef4444'
-                      }}>
-                        {formatRupiah(item.budget_amount - item.actual_amount)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {filteredSeserahan.length === 0 && (
-                <p className="text-xs text-center py-6" style={{ color: '#9ca3af' }}>Belum ada item seserahan</p>
-              )}
-            </div>
-          )}
-
-          {/* ===== SAVINGS TAB ===== */}
-          {activeTab === 'savings' && (
-            <div className="space-y-4">
-              {/* Target */}
-              <div className="rounded-2xl p-5 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                <div className="flex justify-between items-center mb-2">
-                  <p className="font-bold text-sm" style={{ color: '#374151' }}>Tabungan Bersama</p>
-                  <button onClick={() => { setFormAmount(target.toString()); setShowTargetModal(true); }}
-                    className="text-[10px] font-bold px-3 py-1.5 rounded-full" style={{ color: '#111827', backgroundColor: '#f9fafb' }}>
-                    Ubah Target
-                  </button>
-                </div>
-                <div className="text-center mb-2">
-                  <p className="text-[10px] font-bold uppercase" style={{ color: '#9ca3af' }}>Total Terkumpul</p>
-                  <p className="text-2xl font-bold" style={{ color: '#059669' }}>{formatRupiah(totalIncome)}</p>
-                </div>
-                {target > 0 && (
-                  <>
-                    {renderSavingsProgressBar()}
-                    <div className="flex justify-between mt-2 text-xs">
-                      <span className="font-bold" style={{ color: '#6b7280' }}>
-                        Sisa: {formatRupiah(savingsNeeded)}
-                      </span>
-                      <span className="font-bold" style={{ color: '#111827' }}>
-                        Target: {formatRupiah(target)}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Quick Select */}
-              <div className="rounded-2xl p-5 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                <p className="font-bold text-sm mb-3" style={{ color: '#374151' }}>Pilih Cepat</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {QUICK_SELECT.map(qty => (
-                    <button key={qty} onClick={() => handleAddDeposit(qty)}
-                      className="py-3 rounded-xl font-bold text-sm transition-all"
-                      style={{ backgroundColor: '#f9fafb', color: '#111827', border: '1px solid #e5e7eb' }}>
-                      {formatRupiah(qty)}
-                    </button>
-                  ))}
-                </div>
-                <button onClick={() => { setFormAmount(''); setFormDesc(''); setShowDepositModal(true); }}
-                  className="w-full py-3 mt-3 rounded-xl font-bold text-sm"
-                  style={{ backgroundColor: '#111827', color: '#fff' }}>
-                  + Atur Nominal Lain
-                </button>
-              </div>
-
-              {/* Recent Deposits (from income transactions) */}
-              <div className="rounded-2xl p-5 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                <p className="font-bold text-sm mb-3" style={{ color: '#374151' }}>Riwayat Setoran</p>
-                {data.transactions.filter(t => t.type === 'income').slice(0, 5).map(t => (
-                  <div key={t.id} className="flex justify-between items-center py-2 border-b" style={{ borderColor: '#f3f4f6' }}>
-                    <div>
-                      <p className="text-xs font-bold" style={{ color: '#374151' }}>{t.desc}</p>
-                      <p className="text-[10px]" style={{ color: '#9ca3af' }}>{formatDateShort(t.date)}</p>
-                    </div>
-                    <span className="text-xs font-bold" style={{ color: '#059669' }}>+{formatRupiah(t.amount)}</span>
-                  </div>
-                ))}
-                {data.transactions.filter(t => t.type === 'income').length === 0 && (
-                  <p className="text-xs text-center" style={{ color: '#9ca3af' }}>Belum ada setoran</p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ===== TIMELINE TAB ===== */}
-          {activeTab === 'timeline' && (
-            <div className="space-y-4">
-              {/* Sub-tabs: Calendar / Gantt */}
-              <div className="flex gap-2">
-                <button onClick={() => setTimelineView('calendar')}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all"
-                  style={{
-                    backgroundColor: timelineView === 'calendar' ? '#111827' : '#fff',
-                    color: timelineView === 'calendar' ? '#fff' : '#6b7280',
-                    border: timelineView === 'calendar' ? 'none' : '1px solid #f3f4f6',
-                  }}>
-                  <FaCalendarAlt /> Kalender
-                </button>
-                <button onClick={() => setTimelineView('gantt')}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all"
-                  style={{
-                    backgroundColor: timelineView === 'gantt' ? '#111827' : '#fff',
-                    color: timelineView === 'gantt' ? '#fff' : '#6b7280',
-                    border: timelineView === 'gantt' ? 'none' : '1px solid #f3f4f6',
-                  }}>
-                  <FaChartBar /> Gantt Chart
-                </button>
-              </div>
-
-              {/* CALENDAR VIEW */}
-              {timelineView === 'calendar' && (
-                (() => {
-                  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
-                  const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
-                  const today = new Date();
-                  const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-
-                  const eventsOnDate = (day: number) =>
-                    data.timeline.filter(e => {
-                      if (!e.deadline) return false;
-                      const d = new Date(e.deadline);
-                      return d.getDate() === day && d.getMonth() === calendarMonth && d.getFullYear() === calendarYear;
-                    });
-
-                  const catColors: Record<string, string> = {
-                    Vendor: '#111827', Konsep: '#f59e0b', Perhiasan: '#8b5cf6',
-                    Busana: '#06b6d4', Admin: '#3b82f6', Keuangan: '#10b981',
-                    Acara: '#ef4444', Barang: '#f97316', Digital: '#6366f1', Personal: '#14b8a6',
-                  };
-
-                  return (
-                    <div className="rounded-2xl p-4 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                      {/* Month navigation */}
-                      <div className="flex items-center justify-between mb-4">
-                        <button onClick={() => { if (calendarMonth === 0) { setCalendarMonth(11); setCalendarYear(y => y - 1); } else setCalendarMonth(m => m - 1); }}
-                          className="p-2 rounded-lg" style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>
-                          <FaChevronLeft style={{ fontSize: '12px' }} />
-                        </button>
-                        <p className="font-bold text-sm" style={{ color: '#374151' }}>{months[calendarMonth]} {calendarYear}</p>
-                        <button onClick={() => { if (calendarMonth === 11) { setCalendarMonth(0); setCalendarYear(y => y + 1); } else setCalendarMonth(m => m + 1); }}
-                          className="p-2 rounded-lg" style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>
-                          <FaChevronRightIcon style={{ fontSize: '12px' }} />
-                        </button>
-                      </div>
-
-                      {/* Day names */}
-                      <div className="grid grid-cols-7 mb-2">
-                        {dayNames.map(d => (
-                          <div key={d} className="text-center text-[10px] font-bold py-1" style={{ color: '#9ca3af' }}>{d}</div>
-                        ))}
-                      </div>
-
-                      {/* Calendar grid */}
-                      <div className="grid grid-cols-7">
-                        {Array.from({ length: firstDay }).map((_, i) => (
-                          <div key={`empty-${i}`} className="p-1.5 min-h-[40px]" />
-                        ))}
-                        {Array.from({ length: daysInMonth }).map((_, i) => {
-                          const day = i + 1;
-                          const events = eventsOnDate(day);
-                          const isToday = day === today.getDate() && calendarMonth === today.getMonth() && calendarYear === today.getFullYear();
-                          const isPast = new Date(calendarYear, calendarMonth, day) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                          return (
-                            <div key={day} className="p-1 min-h-[44px] border-t" style={{ borderColor: '#f3f4f6' }}>
-                              <div className="text-center mb-0.5">
-                                <span className="text-[11px] font-bold inline-flex items-center justify-center"
-                                  style={{
-                                    width: '22px', height: '22px', borderRadius: '50%',
-                                    backgroundColor: isToday ? '#111827' : 'transparent',
-                                    color: isToday ? '#fff' : isPast ? '#d1d5db' : '#374151',
-                                  }}>
-                                  {day}
-                                </span>
-                              </div>
-                              {events.slice(0, 2).map(e => (
-                                <div key={e.id} className="text-[7px] font-bold truncate rounded px-0.5 mb-0.5 leading-tight"
-                                  style={{
-                                    backgroundColor: `${catColors[e.category] || '#9ca3af'}20`,
-                                    color: catColors[e.category] || '#6b7280',
-                                    textDecoration: e.status === 'Done' ? 'line-through' : 'none',
-                                  }}>
-                                  {e.task}
-                                </div>
-                              ))}
-                              {events.length > 2 && (
-                                <div className="text-[7px] font-bold text-center" style={{ color: '#9ca3af' }}>+{events.length - 2}</div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()
-              )}
-
-              {/* GANTT CHART VIEW */}
-              {timelineView === 'gantt' && (
-                (() => {
-                  if (!data.settings.wedding_date) {
-                    return <p className="text-xs text-center py-6" style={{ color: '#9ca3af' }}>Atur tanggal pernikahan dulu</p>;
-                  }
-                  const startDate = new Date();
-                  const endDate = new Date(data.settings.wedding_date);
-                  const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + endDate.getMonth() - startDate.getMonth() + 1;
-
-                  const monthLabels: string[] = [];
-                  for (let i = 0; i < totalMonths; i++) {
-                    const d = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
-                    monthLabels.push(d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }));
-                  }
-
-                  const sortedTimeline = [...data.timeline].sort((a, b) => {
-                    if (!a.deadline) return 1; if (!b.deadline) return -1;
-                    return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
-                  });
-
-                  const statusBarColors: Record<string, string> = {
-                    Done: '#10b981', Pending: '#f59e0b', planned: '#3b82f6',
-                    confirmed: '#8b5cf6', completed: '#10b981', cancelled: '#ef4444',
-                  };
-
-                  const getTaskPosition = (deadline?: string) => {
-                    if (!deadline) return { left: '0%', width: '0%' };
-                    const d = new Date(deadline);
-                    const monthIdx = (d.getFullYear() - startDate.getFullYear()) * 12 + d.getMonth() - startDate.getMonth();
-                    const pct = Math.max(0, Math.min(monthIdx / totalMonths * 100, 95));
-                    return { left: `${pct}%`, width: `${Math.max(3, 100 / totalMonths)}%` };
-                  };
-
-                  const catGanttColors: Record<string, string> = {
-                    Vendor: '#e5e7eb', Konsep: '#fef3c7', Perhiasan: '#ede9fe',
-                    Busana: '#cffafe', Admin: '#dbeafe', Keuangan: '#d1fae5',
-                    Acara: '#fee2e2', Barang: '#fed7aa', Digital: '#e0e7ff', Personal: '#ccfbf1',
-                  };
-
-                  const barCatColors: Record<string, string> = {
-                    Vendor: '#111827', Konsep: '#f59e0b', Perhiasan: '#8b5cf6',
-                    Busana: '#06b6d4', Admin: '#3b82f6', Keuangan: '#10b981',
-                    Acara: '#ef4444', Barang: '#f97316', Digital: '#6366f1', Personal: '#14b8a6',
-                  };
-
-                  return (
-                    <div className="rounded-2xl p-4 shadow-sm" style={{ border: '1px solid #f3f4f6' }}>
-                      <p className="font-bold text-sm mb-3" style={{ color: '#374151' }}>Gantt Chart Timeline</p>
-
-                      {/* Month headers */}
-                      <div className="flex border-b mb-2" style={{ borderColor: '#f3f4f6', marginLeft: '80px' }}>
-                        {monthLabels.map((m, i) => (
-                          <div key={i} className="text-[8px] font-bold text-center flex-1 py-1 truncate" style={{ color: '#9ca3af' }}>
-                            {m}
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Task rows */}
-                      <div className="space-y-2 max-h-[400px] overflow-y-auto no-scrollbar">
-                        {sortedTimeline.map(e => {
-                          const pos = getTaskPosition(e.deadline);
-                          return (
-                            <div key={e.id} className="flex items-center gap-2 min-h-[28px]">
-                              <div className="text-[10px] font-bold truncate" style={{ width: '76px', flexShrink: 0, color: e.status === 'Done' ? '#9ca3af' : '#374151' }}>
-                                {e.task}
-                              </div>
-                              <div className="flex-1 relative h-6 rounded" style={{ backgroundColor: catGanttColors[e.category] || '#f3f4f6' }}>
-                                <div className="absolute h-full rounded flex items-center px-1 transition-all"
-                                  style={{
-                                    left: pos.left,
-                                    width: pos.width,
-                                    backgroundColor: barCatColors[e.category] || '#9ca3af',
-                                    opacity: e.status === 'Done' ? 0.5 : 0.85,
-                                    minWidth: '4px',
-                                  }}>
-                                  <span className="text-[7px] font-bold text-white truncate w-full">
-                                    {e.status === 'Done' ? '✓' : ''}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                        {sortedTimeline.length === 0 && (
-                          <p className="text-xs text-center py-6" style={{ color: '#9ca3af' }}>Belum ada timeline</p>
-                        )}
-                      </div>
-
-                      {/* Legend */}
-                      <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t" style={{ borderColor: '#f3f4f6' }}>
-                        {Object.entries(barCatColors).map(([cat, color]) => (
-                          <div key={cat} className="flex items-center gap-1">
-                            <div style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: color }} />
-                            <span className="text-[8px]" style={{ color: '#6b7280' }}>{cat}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      </main>
 
-      {/* ===== FLOATING CASH CARD ===== */}
-      <div className="fixed bottom-24 left-0 right-0 flex justify-center px-4" style={{ zIndex: 30, pointerEvents: 'none' }}>
-        <div className="w-full max-w-md" style={{ pointerEvents: 'auto' }}>
-          <div className="safe-blur p-3 rounded-2xl shadow-lg flex justify-between items-center mx-1" style={{ border: '1px solid #e5e7eb' }}>
+      {/* ===== MOBILE BOTTOM UI CONTAINER ===== */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
+        <div className="p-4 flex flex-col gap-4">
+          
+          {/* MOBILE FLOATING ACTION BAR */}
+          <div className="brutalist-card p-4 bg-brut-white flex items-center justify-between shadow-brutalist text-brut-black pointer-events-auto max-w-lg mx-auto w-full">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#e5e7eb', color: '#111827', flexShrink: 0 }}>
+              <div className="flex items-center justify-center w-12 h-12 bg-brut-yellow border-3 border-brut-black text-xl shadow-brutalist-sm">
                 <FaWallet />
               </div>
               <div>
-                <p className="font-bold uppercase" style={{ fontSize: '10px', color: '#6b7280' }}>Sisa Kas Tunai</p>
-                <p className="font-bold text-lg" style={{ color: '#1f2937', lineHeight: 1 }}>{formatRupiah(cashBalance)}</p>
+                <p className="font-black uppercase text-[10px] tracking-widest leading-none mb-1 text-gray-500">CASH</p>
+                <p className="font-black text-lg leading-none">{formatRupiah(cashBalance)}</p>
               </div>
             </div>
+            <div className="flex gap-3">
+              <button onClick={() => { setShowDepositModal(true); setFormAmount(''); setFormDesc(''); }}
+                className="w-12 h-12 bg-brut-green border-3 border-brut-black shadow-brutalist-sm flex items-center justify-center active:translate-y-1 active:shadow-none transition-all">
+                <FaPlusCircle className="text-xl" />
+              </button>
+              <button onClick={() => { setShowExpenseModal(true); setFormDesc(''); setFormAmount(''); }}
+                className="w-12 h-12 bg-brut-cyan border-3 border-brut-black shadow-brutalist-sm flex items-center justify-center active:translate-y-1 active:shadow-none transition-all">
+                <FaReceipt className="text-xl" />
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* ===== BOTTOM ACTION BUTTONS ===== */}
-      <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-safe" style={{ zIndex: 40 }}>
-        <div className="w-full max-w-md px-4 pb-4 pt-2"
-          style={{ background: 'linear-gradient(to top, #f9fafb, rgba(249,250,251,0.95), transparent)' }}>
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => { setShowDepositModal(true); setFormAmount(''); setFormDesc(''); }}
-              className="py-3.5 rounded-2xl shadow-lg font-bold flex justify-center items-center gap-2 text-sm"
-              style={{ backgroundColor: '#111827', color: '#fff', minHeight: '48px' }}>
-              <FaPlusCircle /> Nabung
-            </button>
-            <button onClick={() => { setShowExpenseModal(true); setFormDesc(''); setFormAmount(''); }}
-              className="py-3.5 rounded-2xl shadow-lg font-bold flex justify-center items-center gap-2 text-sm"
-              style={{ backgroundColor: '#374151', color: '#fff', minHeight: '48px' }}>
-              <FaReceipt /> Bayar
-            </button>
-          </div>
+          {/* MOBILE BOTTOM NAV */}
+          <nav className="bg-brut-white border-4 border-brut-black p-2 shadow-brutalist pointer-events-auto max-w-lg mx-auto w-full">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar text-brut-black">
+              {TAB_CONFIG.map(tab => (
+                <button 
+                  key={tab.key} 
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex flex-col items-center justify-center min-w-[64px] flex-1 py-3 border-3 border-brut-black font-black text-[9px] uppercase tracking-tighter transition-all ${
+                    activeTab === tab.key 
+                      ? 'bg-brut-cyan -translate-y-1 shadow-brutalist-sm' 
+                      : 'bg-brut-white hover:bg-brut-yellow'
+                  }`}
+                >
+                  <span className="text-xl mb-1">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+          
+          {/* Safe area spacer */}
+          <div className="h-safe" />
         </div>
       </div>
 
@@ -1454,20 +1358,24 @@ export default function Home() {
       {/* DEPOSIT MODAL */}
       {showDepositModal && (
         <BottomSheet onClose={() => setShowDepositModal(false)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Setor Tabungan</h3>
-          <input type="number" placeholder="Jumlah (Rp)"
-            className="w-full p-3.5 rounded-xl mb-4 outline-none font-bold text-lg"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
-            value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
-          <input type="text" placeholder="Keterangan (opsional)"
-            className="w-full p-3.5 rounded-xl mb-6 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
-            value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
-          <div className="flex gap-3">
-            <button onClick={() => setShowDepositModal(false)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6', minHeight: '48px' }}>Batal</button>
-            <button onClick={() => handleAddDeposit(parseInt(formAmount) || 0, formDesc)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827', minHeight: '48px' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Deposit Cash</h3>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">AMOUNT (IDR)</label>
+              <input type="number" placeholder="0"
+                className="w-full brutalist-input text-2xl font-black"
+                value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">DESCRIPTION</label>
+              <input type="text" placeholder="GIFT, SALARY, ETC."
+                className="w-full brutalist-input uppercase text-sm"
+                value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowDepositModal(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={() => handleAddDeposit(parseInt(formAmount) || 0, formDesc)} className="brutalist-button brutalist-button-cyan !py-4 font-black">SAVE RECORD</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1475,16 +1383,18 @@ export default function Home() {
       {/* TARGET MODAL */}
       {showTargetModal && (
         <BottomSheet onClose={() => setShowTargetModal(false)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>{target === 0 ? 'Atur Target' : 'Ubah Target'}</h3>
-          <input type="number" placeholder="Target (Rp)"
-            className="w-full p-3.5 rounded-xl mb-6 outline-none font-bold text-lg"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#111827', backgroundColor: '#fff', WebkitAppearance: 'none' }}
-            value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
-          <div className="flex gap-3">
-            <button onClick={() => setShowTargetModal(false)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6', minHeight: '48px' }}>Batal</button>
-            <button onClick={handleUpdateTarget} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827', minHeight: '48px' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Set Savings Target</h3>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">TARGET AMOUNT (IDR)</label>
+              <input type="number" placeholder="0"
+                className="w-full brutalist-input text-2xl font-black"
+                value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowTargetModal(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={handleUpdateTarget} className="brutalist-button brutalist-button-cyan !py-4 font-black">UPDATE TARGET</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1492,26 +1402,32 @@ export default function Home() {
       {/* EXPENSE MODAL */}
       {showExpenseModal && (
         <BottomSheet onClose={() => setShowExpenseModal(false)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Bayar Vendor</h3>
-          <select className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#f9fafb', WebkitAppearance: 'menulist' }}
-            value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
-            <option value="Lainnya">Lainnya</option>
-            {data.budgets.map(b => <option key={b.id} value={b.item}>{b.item}</option>)}
-          </select>
-          <input type="text" placeholder="Keterangan"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
-            value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
-          <input type="number" placeholder="Jumlah (Rp)"
-            className="w-full p-3.5 rounded-xl mb-6 outline-none font-bold text-lg"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
-            value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
-          <div className="flex gap-3">
-            <button onClick={() => setShowExpenseModal(false)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6', minHeight: '48px' }}>Batal</button>
-            <button onClick={handleAddExpense} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827', minHeight: '48px' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Record Payment</h3>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">VENDOR / CATEGORY</label>
+              <select className="w-full brutalist-input text-sm uppercase font-black cursor-pointer"
+                value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
+                <option value="Lainnya">GENERAL / OTHER</option>
+                {data.budgets.map(b => <option key={b.id} value={b.item}>{b.item}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">DESCRIPTION</label>
+              <input type="text" placeholder="DOWN PAYMENT, FULL PAID, ETC."
+                className="w-full brutalist-input text-sm uppercase"
+                value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">AMOUNT (IDR)</label>
+              <input type="number" placeholder="0"
+                className="w-full brutalist-input text-2xl font-black"
+                value={formAmount} onChange={(e) => setFormAmount(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowExpenseModal(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={handleAddExpense} className="brutalist-button brutalist-button-cyan !py-4 font-black">RECORD PAID</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1519,29 +1435,35 @@ export default function Home() {
       {/* ADD CHECKLIST ITEM MODAL */}
       {showAddChecklistItem && (
         <BottomSheet onClose={() => setShowAddChecklistItem(false)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Item Checklist</h3>
-          <select className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-            value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
-            <option value="">Pilih Kategori</option>
-            {data.checklistCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <input type="text" placeholder="Judul tugas"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', backgroundColor: '#fff', WebkitAppearance: 'none' }}
-            value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
-          <select className="w-full p-3.5 rounded-xl mb-6 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-            value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-            <option value="joint">Bersama</option>
-            <option value="pria">Pihak Pria</option>
-            <option value="wanita">Pihak Wanita</option>
-          </select>
-          <div className="flex gap-3">
-            <button onClick={() => setShowAddChecklistItem(false)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
-            <button onClick={handleAddChecklistItem} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Create New Task</h3>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">CATEGORY</label>
+              <select className="w-full brutalist-input text-sm font-black uppercase text-brut-black"
+                value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
+                <option value="">SELECT CATEGORY</option>
+                {data.checklistCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">TASK TITLE</label>
+              <input type="text" placeholder="WHAT NEEDS TO BE DONE?"
+                className="w-full brutalist-input text-sm uppercase"
+                value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">ASSIGN TO</label>
+              <select className="w-full brutalist-input text-sm font-black uppercase text-brut-black"
+                value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                <option value="joint">JOINT / BOTH</option>
+                <option value="pria">GROOM</option>
+                <option value="wanita">BRIDE</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowAddChecklistItem(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={handleAddChecklistItem} className="brutalist-button brutalist-button-cyan !py-4 font-black">CREATE TASK</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1549,47 +1471,37 @@ export default function Home() {
       {/* ADD ENGAGEMENT MODAL */}
       {showAddEngagement && (
         <BottomSheet onClose={() => setShowAddEngagement(false)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Item Engagement</h3>
-          <input type="text" placeholder="Nama item"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-          <input type="text" placeholder="Kategori"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <input type="number" placeholder="Budget (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
-            <input type="number" placeholder="Realisasi (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formActual} onChange={(e) => setFormActual(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-              <option value="joint">Bersama</option>
-              <option value="pria">Pria</option>
-              <option value="wanita">Wanita</option>
-            </select>
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
-              <option value="planned">Planned</option>
-              <option value="ordered">Order</option>
-              <option value="done">Done</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div className="flex gap-3">
-            <button onClick={() => setShowAddEngagement(false)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
-            <button onClick={handleAddEngagement} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">New Engagement Item</h3>
+          <div className="space-y-4">
+            <input type="text" placeholder="ITEM NAME" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+            <input type="text" placeholder="CATEGORY" className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+            <div className="grid grid-cols-2 gap-3">
+               <div>
+                  <label className="block text-[8px] font-black uppercase mb-1 text-brut-black">BUDGET</label>
+                  <input type="number" placeholder="BUDGET" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
+               </div>
+               <div>
+                  <label className="block text-[8px] font-black uppercase mb-1 text-brut-black">ACTUAL</label>
+                  <input type="number" placeholder="ACTUAL" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
+               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+               <select className="w-full brutalist-input text-[10px] font-black uppercase text-brut-black" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="joint">JOINT</option>
+                  <option value="pria">GROOM</option>
+                  <option value="wanita">BRIDE</option>
+               </select>
+               <select className="w-full brutalist-input text-[10px] font-black uppercase text-brut-black" value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
+                  <option value="planned">PLANNED</option>
+                  <option value="ordered">ORDERED</option>
+                  <option value="done">DONE</option>
+                  <option value="cancelled">CANCELLED</option>
+               </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowAddEngagement(false)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
+              <button onClick={handleAddEngagement} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">SAVE ITEM</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1597,47 +1509,37 @@ export default function Home() {
       {/* ADD SESERAHAN MODAL */}
       {showAddSeserahan && (
         <BottomSheet onClose={() => setShowAddSeserahan(false)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Item Seserahan</h3>
-          <input type="text" placeholder="Nama item"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-          <input type="text" placeholder="Kategori"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <input type="number" placeholder="Budget (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
-            <input type="number" placeholder="Realisasi (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formActual} onChange={(e) => setFormActual(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-              <option value="joint">Bersama</option>
-              <option value="pria">Pria</option>
-              <option value="wanita">Wanita</option>
-            </select>
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
-              <option value="planned">Planned</option>
-              <option value="ordered">Order</option>
-              <option value="done">Done</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div className="flex gap-3">
-            <button onClick={() => setShowAddSeserahan(false)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
-            <button onClick={handleAddSeserahan} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">New Seserahan Item</h3>
+          <div className="space-y-4">
+            <input type="text" placeholder="ITEM NAME" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+            <input type="text" placeholder="CATEGORY" className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+            <div className="grid grid-cols-2 gap-3">
+               <div>
+                  <label className="block text-[8px] font-black uppercase mb-1 text-brut-black">BUDGET</label>
+                  <input type="number" placeholder="BUDGET" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
+               </div>
+               <div>
+                  <label className="block text-[8px] font-black uppercase mb-1 text-brut-black">ACTUAL</label>
+                  <input type="number" placeholder="ACTUAL" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
+               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+               <select className="w-full brutalist-input text-[10px] font-black uppercase text-brut-black" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="joint">JOINT</option>
+                  <option value="pria">GROOM</option>
+                  <option value="wanita">BRIDE</option>
+               </select>
+               <select className="w-full brutalist-input text-[10px] font-black uppercase text-brut-black" value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
+                  <option value="planned">PLANNED</option>
+                  <option value="ordered">ORDERED</option>
+                  <option value="done">DONE</option>
+                  <option value="cancelled">CANCELLED</option>
+               </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowAddSeserahan(false)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
+              <button onClick={handleAddSeserahan} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">SAVE ITEM</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1645,47 +1547,31 @@ export default function Home() {
       {/* EDIT ENGAGEMENT MODAL */}
       {showEditEngagement && (
         <BottomSheet onClose={() => setShowEditEngagement(null)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Edit Engagement Item</h3>
-          <input type="text" placeholder="Nama item"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-          <input type="text" placeholder="Kategori"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <input type="number" placeholder="Budget (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
-            <input type="number" placeholder="Realisasi (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formActual} onChange={(e) => setFormActual(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-2 mb-6">
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-              <option value="joint">Bersama</option>
-              <option value="pria">Pria</option>
-              <option value="wanita">Wanita</option>
-            </select>
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
-              <option value="planned">Planned</option>
-              <option value="ordered">Order</option>
-              <option value="done">Done</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div className="flex gap-3">
-            <button onClick={() => setShowEditEngagement(null)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
-            <button onClick={handleUpdateEngagement} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Edit Engagement</h3>
+          <div className="space-y-4 text-brut-black">
+            <input type="text" placeholder="ITEM NAME" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+            <input type="text" placeholder="CATEGORY" className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+            <div className="grid grid-cols-2 gap-3">
+               <input type="number" placeholder="BUDGET" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
+               <input type="number" placeholder="ACTUAL" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+               <select className="w-full brutalist-input text-[10px] font-black uppercase" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="joint">JOINT</option>
+                  <option value="pria">GROOM</option>
+                  <option value="wanita">BRIDE</option>
+               </select>
+               <select className="w-full brutalist-input text-[10px] font-black uppercase" value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
+                  <option value="planned">PLANNED</option>
+                  <option value="ordered">ORDERED</option>
+                  <option value="done">DONE</option>
+                  <option value="cancelled">CANCELLED</option>
+               </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowEditEngagement(null)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
+              <button onClick={handleUpdateEngagement} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">UPDATE</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1693,47 +1579,31 @@ export default function Home() {
       {/* EDIT SESERAHAN MODAL */}
       {showEditSeserahan && (
         <BottomSheet onClose={() => setShowEditSeserahan(null)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Edit Seserahan Item</h3>
-          <input type="text" placeholder="Nama item"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-          <input type="text" placeholder="Kategori"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <input type="number" placeholder="Budget (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
-            <input type="number" placeholder="Realisasi (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formActual} onChange={(e) => setFormActual(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-2 mb-6">
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-              <option value="joint">Bersama</option>
-              <option value="pria">Pria</option>
-              <option value="wanita">Wanita</option>
-            </select>
-            <select className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-              value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
-              <option value="planned">Planned</option>
-              <option value="ordered">Order</option>
-              <option value="done">Done</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div className="flex gap-3">
-            <button onClick={() => setShowEditSeserahan(null)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
-            <button onClick={handleUpdateSeserahan} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Edit Seserahan</h3>
+          <div className="space-y-4 text-brut-black">
+            <input type="text" placeholder="ITEM NAME" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+            <input type="text" placeholder="CATEGORY" className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+            <div className="grid grid-cols-2 gap-3">
+               <input type="number" placeholder="BUDGET" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
+               <input type="number" placeholder="ACTUAL" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+               <select className="w-full brutalist-input text-[10px] font-black uppercase" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="joint">JOINT</option>
+                  <option value="pria">GROOM</option>
+                  <option value="wanita">BRIDE</option>
+               </select>
+               <select className="w-full brutalist-input text-[10px] font-black uppercase" value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
+                  <option value="planned">PLANNED</option>
+                  <option value="ordered">ORDERED</option>
+                  <option value="done">DONE</option>
+                  <option value="cancelled">CANCELLED</option>
+               </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowEditSeserahan(null)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
+              <button onClick={handleUpdateSeserahan} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">UPDATE</button>
+            </div>
           </div>
         </BottomSheet>
       )}
@@ -1741,49 +1611,50 @@ export default function Home() {
       {/* ADD BUDGET MODAL */}
       {showAddBudget && (
         <BottomSheet onClose={() => setShowAddBudget(false)}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#1f2937' }}>Tambah Anggaran</h3>
-          <input type="text" placeholder="Nama item (e.g. Venue, MUA)"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-          <input type="text" placeholder="Kategori"
-            className="w-full p-3.5 rounded-xl mb-3 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-            value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <input type="number" placeholder="Rencana (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
-            <input type="number" placeholder="Dibayar (Rp)"
-              className="w-full p-3.5 rounded-xl outline-none text-sm"
-              style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'none' }}
-              value={formActual} onChange={(e) => setFormActual(e.target.value)} />
-          </div>
-          <select className="w-full p-3.5 rounded-xl mb-6 outline-none text-sm"
-            style={{ border: '2px solid #e5e7eb', minHeight: '48px', color: '#374151', WebkitAppearance: 'menulist' }}
-            value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-            <option value="joint">Bersama</option>
-            <option value="pria">Pria</option>
-            <option value="wanita">Wanita</option>
-          </select>
-          <div className="flex gap-3">
-            <button onClick={() => setShowAddBudget(false)} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#6b7280', backgroundColor: '#f3f4f6' }}>Batal</button>
-            <button onClick={async () => {
-              if (!formItem) return;
-              await sb.addBudget({
-                item: formItem,
-                category: formCategory || 'Umum',
-                plan: parseInt(formBudget) || 0,
-                paid: parseInt(formActual) || 0,
-                status: 'planned',
-                party: formParty,
-              });
-              await silentRefresh();
-              setShowAddBudget(false);
-            }} className="flex-1 py-3.5 rounded-xl font-bold"
-              style={{ color: '#fff', backgroundColor: '#111827' }}>Simpan</button>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">New Budget Entry</h3>
+          <div className="space-y-4 text-brut-black">
+             <div>
+                <label className="block text-[10px] font-black uppercase mb-1">VENDOR / ITEM NAME</label>
+                <input type="text" placeholder="E.G. VENUE, CATERING, MUA" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+             </div>
+             <div>
+                <label className="block text-[10px] font-black uppercase mb-1">CATEGORY</label>
+                <input type="text" placeholder="CONCEPT, ADMIN, ETC." className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+             </div>
+             <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[8px] font-black uppercase mb-1">PLANNED COST</label>
+                  <input type="number" placeholder="0" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-[8px] font-black uppercase mb-1">INITIAL PAID</label>
+                  <input type="number" placeholder="0" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
+                </div>
+             </div>
+             <div>
+                <label className="block text-[10px] font-black uppercase mb-1">RESPONSIBLE PARTY</label>
+                <select className="w-full brutalist-input text-sm font-black uppercase" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="joint">JOINT / BOTH</option>
+                  <option value="pria">GROOM</option>
+                  <option value="wanita">BRIDE</option>
+                </select>
+             </div>
+             <div className="grid grid-cols-2 gap-4 pt-4">
+                <button onClick={() => setShowAddBudget(false)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
+                <button onClick={async () => {
+                   if (!formItem) return;
+                   await sb.addBudget({
+                      item: formItem,
+                      category: formCategory || 'Umum',
+                      plan: parseInt(formBudget) || 0,
+                      paid: parseInt(formActual) || 0,
+                      status: 'planned',
+                      party: formParty,
+                   });
+                   await silentRefresh();
+                   setShowAddBudget(false);
+                }} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">ADD ENTRY</button>
+             </div>
           </div>
         </BottomSheet>
       )}
