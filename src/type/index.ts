@@ -37,7 +37,7 @@ export interface ChecklistItem {
   description?: string;
   completed: boolean;
   priority: "low" | "medium" | "high";
-  due_date?: string;
+  due_date?: string | null;
   assigned_to: "pria" | "wanita" | "joint";
   sort_order: number;
 }

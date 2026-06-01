@@ -12,7 +12,7 @@ import {
 import confetti from 'canvas-confetti';
 import * as sb from '../lib/supabaseService';
 import type {
-  AppData, EngagementItem, SeserahanItem, Invitation
+  AppData, EngagementItem, SeserahanItem, Invitation, ChecklistItem
 } from '../type';
 
 const formatRupiah = (n: number) =>
@@ -198,6 +198,7 @@ export default function Home() {
   const [showTargetModal, setShowTargetModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
   const [showAddChecklistItem, setShowAddChecklistItem] = useState(false);
+  const [showEditChecklist, setShowEditChecklist] = useState<ChecklistItem | null>(null);
   const [showAddEngagement, setShowAddEngagement] = useState(false);
   const [showAddSeserahan, setShowAddSeserahan] = useState(false);
   const [showEditSeserahan, setShowEditSeserahan] = useState<SeserahanItem | null>(null);
@@ -441,6 +442,26 @@ export default function Home() {
     await silentRefresh();
     setShowAddChecklistItem(false);
     setFormTitle('');
+  };
+
+  const handleOpenEditChecklist = (item: ChecklistItem) => {
+    setFormTitle(item.title);
+    setFormCategory(item.category_id);
+    setFormParty(item.assigned_to);
+    setFormDate(item.due_date ? item.due_date.slice(0, 10) : '');
+    setShowEditChecklist(item);
+  };
+
+  const handleUpdateChecklist = async () => {
+    if (!showEditChecklist || !formTitle.trim()) return;
+    await sb.updateChecklistItem(showEditChecklist.id, {
+      title: formTitle.trim(),
+      category_id: formCategory,
+      assigned_to: formParty,
+      due_date: formDate || null,
+    });
+    await silentRefresh();
+    setShowEditChecklist(null);
   };
 
   const handleToggleChecklist = async (id: string, completed: boolean) => {
@@ -1081,9 +1102,14 @@ export default function Home() {
                                     {item.due_date && <span className="text-[9px] font-black uppercase text-gray-500 bg-gray-200 px-1 border border-brut-black">{formatDateShort(item.due_date)}</span>}
                                   </div>
                                 </div>
-                                <button onClick={() => handleDeleteChecklist(item.id)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm shrink-0">
-                                  <FaTrash className="text-sm" />
-                                </button>
+                                <div className="flex gap-2 shrink-0">
+                                  <button onClick={() => handleOpenEditChecklist(item)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-brut-cyan flex items-center justify-center shadow-brutalist-sm">
+                                    <FaEdit className="text-sm" />
+                                  </button>
+                                  <button onClick={() => handleDeleteChecklist(item.id)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm">
+                                    <FaTrash className="text-sm" />
+                                  </button>
+                                </div>
                               </div>
                             ))}
                             {items.length === 0 && (
@@ -1859,6 +1885,49 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 pt-4">
               <button onClick={() => setShowAddChecklistItem(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
               <button onClick={handleAddChecklistItem} className="brutalist-button brutalist-button-cyan !py-4 font-black">CREATE TASK</button>
+            </div>
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* EDIT CHECKLIST ITEM MODAL */}
+      {showEditChecklist && (
+        <BottomSheet onClose={() => setShowEditChecklist(null)}>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Edit Task</h3>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">TASK TITLE</label>
+              <input type="text" placeholder="WHAT NEEDS TO BE DONE?"
+                className="w-full brutalist-input text-sm uppercase"
+                value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">CATEGORY</label>
+              <select className="w-full brutalist-input text-sm font-black uppercase text-brut-black"
+                value={formCategory} onChange={(e) => setFormCategory(e.target.value)}>
+                <option value="">SELECT CATEGORY</option>
+                {data.checklistCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">ASSIGN TO</label>
+                <select className="w-full brutalist-input text-sm font-black uppercase text-brut-black"
+                  value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="joint">JOINT / BOTH</option>
+                  <option value="pria">GROOM</option>
+                  <option value="wanita">BRIDE</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">DEADLINE</label>
+                <input type="date" className="w-full brutalist-input text-sm font-black uppercase"
+                  value={formDate} onChange={(e) => setFormDate(e.target.value)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowEditChecklist(null)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={handleUpdateChecklist} className="brutalist-button brutalist-button-cyan !py-4 font-black">UPDATE TASK</button>
             </div>
           </div>
         </BottomSheet>
