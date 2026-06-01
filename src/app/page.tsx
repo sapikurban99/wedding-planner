@@ -192,6 +192,7 @@ export default function Home() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showTargetModal, setShowTargetModal] = useState(false);
+  const [showDateModal, setShowDateModal] = useState(false);
   const [showAddChecklistItem, setShowAddChecklistItem] = useState(false);
   const [showAddEngagement, setShowAddEngagement] = useState(false);
   const [showAddSeserahan, setShowAddSeserahan] = useState(false);
@@ -209,6 +210,7 @@ export default function Home() {
   const [formBudget, setFormBudget] = useState('');
   const [formActual, setFormActual] = useState('');
   const [formTitle, setFormTitle] = useState('');
+  const [formDate, setFormDate] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
 
   // Countdown
@@ -303,6 +305,30 @@ export default function Home() {
   const engagementTotalActual = data.engagementItems.reduce((a, i) => a + i.actual_amount, 0);
   const seserahanTotalActual = data.seserahanItems.reduce((a, i) => a + i.actual_amount, 0);
 
+  // === Estimasi tabungan bulanan (target tercapai H-7 sebelum hari H) ===
+  // Basis: sisa = target dikurangi yang sudah dibayar (totalPaid dari Budget).
+  // Tenggat = tanggal nikah dikurangi 7 hari.
+  const remainingToPay = Math.max(0, target - totalPaid);
+  const savingsDeadline = data.settings.wedding_date
+    ? new Date(new Date(data.settings.wedding_date).getTime() - 7 * 24 * 60 * 60 * 1000)
+    : null;
+  const daysToDeadline = savingsDeadline
+    ? Math.ceil((savingsDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+  // Jumlah bulan tersisa untuk menabung (minimal 1 selama tenggat belum lewat)
+  const monthsToDeadline = (() => {
+    if (!savingsDeadline) return null;
+    const now = new Date();
+    const diff = (savingsDeadline.getFullYear() - now.getFullYear()) * 12 + (savingsDeadline.getMonth() - now.getMonth());
+    return Math.max(1, diff);
+  })();
+  const deadlinePassed = daysToDeadline !== null && daysToDeadline <= 0;
+  // Saldo kas yang sudah ada dipakai dulu untuk menutup sisa pembayaran.
+  const netToSave = Math.max(0, remainingToPay - cashBalance);
+  const monthlySavingsNeeded = monthsToDeadline && !deadlinePassed
+    ? Math.ceil(netToSave / monthsToDeadline)
+    : netToSave;
+
   // Handlers
   const handleAddDeposit = async (amount: number, note?: string) => {
     await sb.addTransaction({
@@ -324,6 +350,18 @@ export default function Home() {
     await silentRefresh();
     setShowTargetModal(false);
     setFormAmount('');
+  };
+
+  const handleOpenDateModal = () => {
+    setFormDate(data.settings.wedding_date ? data.settings.wedding_date.slice(0, 10) : '');
+    setShowDateModal(true);
+  };
+
+  const handleUpdateDate = async () => {
+    if (!formDate) return;
+    await sb.updateSettings({ wedding_date: formDate });
+    await silentRefresh();
+    setShowDateModal(false);
   };
 
   const handleAddExpense = async () => {
@@ -504,6 +542,18 @@ export default function Home() {
           <p className="font-black text-xs bg-brut-yellow px-2 border-2 border-brut-black inline-block mt-3 uppercase tracking-widest">
             {data.settings.couple_name || 'Qisti & Aldi'}
           </p>
+          <button onClick={handleOpenDateModal}
+            className="mt-4 w-full brutalist-card p-3 bg-brut-cyan flex items-center gap-3 active:translate-x-0.5 active:translate-y-0.5 transition-all text-left">
+            <FaCalendarAlt className="text-lg shrink-0" />
+            <div className="min-w-0">
+              <p className="font-black uppercase text-[9px] tracking-widest text-brut-black/60 leading-none mb-1">HARI H</p>
+              <p className="font-black text-sm leading-none truncate">
+                {data.settings.wedding_date
+                  ? `${countdown.days} HARI LAGI`
+                  : 'SET TANGGAL'}
+              </p>
+            </div>
+          </button>
         </div>
 
         {/* Desktop Balance Widget (Moved here for better UX) */}
@@ -560,9 +610,11 @@ export default function Home() {
               <h1 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-2">
                 <FaHeart className="text-brut-pink" /> WEDDING
               </h1>
-              <p className="text-[10px] font-black uppercase bg-brut-yellow px-2 border-2 border-brut-black inline-block mt-1">
+              <button onClick={handleOpenDateModal}
+                className="text-[10px] font-black uppercase bg-brut-yellow px-2 border-2 border-brut-black inline-flex items-center gap-1 mt-1 active:translate-y-0.5">
+                <FaCalendarAlt className="text-[9px]" />
                 {data.settings.wedding_date ? new Date(data.settings.wedding_date).toLocaleDateString('id-ID', { dateStyle: 'long' }) : 'SET DATE'}
-              </p>
+              </button>
             </div>
             <div className="flex gap-2">
                <button onClick={refresh} className="w-12 h-12 border-3 border-brut-black bg-brut-white shadow-brutalist-sm flex items-center justify-center active:translate-y-1">
@@ -636,6 +688,80 @@ export default function Home() {
                          </div>
                       </div>
                    </div>
+                </div>
+
+                {/* SAVINGS PLAN — berapa harus nabung per bulan biar tercapai H-7 */}
+                <div className="brutalist-card p-6 bg-brut-cyan">
+                  <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+                    <p className="font-black text-lg sm:text-xl uppercase tracking-tighter flex items-center gap-2">
+                      <FaPiggyBank /> Rencana Tabungan
+                    </p>
+                    <button onClick={() => { setFormAmount(target.toString()); setShowTargetModal(true); }}
+                      className="brutalist-button brutalist-button-white !py-2 !text-xs uppercase">
+                      Target: {formatRupiah(target)}
+                    </button>
+                  </div>
+
+                  {!data.settings.wedding_date ? (
+                    <button onClick={handleOpenDateModal}
+                      className="w-full bg-brut-white border-4 border-brut-black p-8 text-center shadow-brutalist-sm active:translate-y-1 transition-all">
+                      <p className="font-black uppercase text-sm">+ Set tanggal nikah untuk lihat estimasi tabungan</p>
+                    </button>
+                  ) : deadlinePassed ? (
+                    <div className="bg-brut-white border-4 border-brut-black p-8 text-center shadow-brutalist-sm">
+                      <p className="font-black uppercase text-red-600 text-sm">
+                        Tenggat menabung (H-7) sudah lewat. {remainingToPay > 0 ? `Masih kurang ${formatRupiah(remainingToPay)}` : 'Target tercapai! 🎉'}
+                      </p>
+                    </div>
+                  ) : remainingToPay <= 0 ? (
+                    <div className="bg-brut-green border-4 border-brut-black p-8 text-center shadow-brutalist">
+                      <p className="font-black uppercase text-xl">Semua budget sudah lunas! 🎉</p>
+                    </div>
+                  ) : netToSave <= 0 ? (
+                    <div className="bg-brut-green border-4 border-brut-black p-8 text-center shadow-brutalist">
+                      <p className="font-black uppercase text-lg">Saldo kas {formatRupiah(cashBalance)} sudah cukup untuk sisa pembayaran {formatRupiah(remainingToPay)} 🎉</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Angka utama: nabung per bulan */}
+                      <div className="bg-brut-yellow border-4 border-brut-black p-6 sm:p-8 shadow-brutalist text-center overflow-hidden">
+                        <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] mb-3 text-gray-800">
+                          Harus Nabung Per Bulan
+                        </p>
+                        <p className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter truncate">
+                          {formatRupiah(monthlySavingsNeeded)}
+                        </p>
+                        <p className="text-[10px] sm:text-xs font-black uppercase mt-3 bg-brut-black text-brut-cyan inline-block px-3 py-1">
+                          selama {monthsToDeadline} bulan lagi
+                        </p>
+                      </div>
+
+                      {/* Rincian */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="bg-brut-white border-3 border-brut-black p-3 shadow-brutalist-sm">
+                          <p className="text-[9px] font-black uppercase text-gray-500 mb-1">Sisa Bayar</p>
+                          <p className="text-sm sm:text-base font-black text-red-600 truncate">{formatRupiah(remainingToPay)}</p>
+                        </div>
+                        <div className="bg-brut-white border-3 border-brut-black p-3 shadow-brutalist-sm">
+                          <p className="text-[9px] font-black uppercase text-gray-500 mb-1">Saldo Kas</p>
+                          <p className="text-sm sm:text-base font-black truncate">{formatRupiah(cashBalance)}</p>
+                        </div>
+                        <div className="bg-brut-white border-3 border-brut-black p-3 shadow-brutalist-sm">
+                          <p className="text-[9px] font-black uppercase text-gray-500 mb-1">Tenggat (H-7)</p>
+                          <p className="text-sm sm:text-base font-black truncate">{savingsDeadline!.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: '2-digit' })}</p>
+                        </div>
+                        <div className="bg-brut-white border-3 border-brut-black p-3 shadow-brutalist-sm">
+                          <p className="text-[9px] font-black uppercase text-gray-500 mb-1">Sisa Hari</p>
+                          <p className="text-sm sm:text-base font-black truncate">{daysToDeadline} hari</p>
+                        </div>
+                      </div>
+
+                      {/* Rumus singkat */}
+                      <p className="text-[10px] font-bold text-gray-500 uppercase text-center">
+                        Nabung/bln = (Sisa Bayar − Saldo Kas) ÷ {monthsToDeadline} bulan
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1394,6 +1520,26 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 pt-4">
               <button onClick={() => setShowTargetModal(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
               <button onClick={handleUpdateTarget} className="brutalist-button brutalist-button-cyan !py-4 font-black">UPDATE TARGET</button>
+            </div>
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* WEDDING DATE MODAL */}
+      {showDateModal && (
+        <BottomSheet onClose={() => setShowDateModal(false)}>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Tanggal Pernikahan</h3>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">HARI H</label>
+              <input type="date"
+                className="w-full brutalist-input text-lg font-black uppercase"
+                value={formDate} onChange={(e) => setFormDate(e.target.value)} />
+              <p className="text-[10px] font-bold text-gray-500 uppercase mt-2">Dipakai untuk countdown, gantt &amp; estimasi tabungan (tenggat H-7).</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4">
+              <button onClick={() => setShowDateModal(false)} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>
+              <button onClick={handleUpdateDate} className="brutalist-button brutalist-button-cyan !py-4 font-black">SIMPAN</button>
             </div>
           </div>
         </BottomSheet>
