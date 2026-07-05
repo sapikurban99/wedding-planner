@@ -187,6 +187,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
   const [partyFilter, setPartyFilter] = useState<PartyFilter>('all');
   const [inviteCategoryFilter, setInviteCategoryFilter] = useState<string>('all');
+  const [inviteTypeFilter, setInviteTypeFilter] = useState<'wedding' | 'engagement'>('wedding');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [timelineView, setTimelineView] = useState<TimelineView>('calendar');
   const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
@@ -220,6 +221,8 @@ export default function Home() {
   const [formTitle, setFormTitle] = useState('');
   const [formDate, setFormDate] = useState('');
   const [formPax, setFormPax] = useState('1');
+  const [formInviteType, setFormInviteType] = useState<'wedding' | 'engagement'>('wedding');
+  const [formGuestNames, setFormGuestNames] = useState('');
   const [formGroomQuota, setFormGroomQuota] = useState('');
   const [formBrideQuota, setFormBrideQuota] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -317,17 +320,19 @@ export default function Home() {
   const seserahanTotalActual = data.seserahanItems.reduce((a, i) => a + i.actual_amount, 0);
 
   // === Pembagian undangan (Aldi/pria & Qisti/wanita) ===
-  const groomQuota = data.settings.groom_quota ?? 150;
-  const brideQuota = data.settings.bride_quota ?? 150;
-  const groomInvites = data.invitations.filter(i => i.party === 'pria');
-  const brideInvites = data.invitations.filter(i => i.party === 'wanita');
+  const isEngagement = inviteTypeFilter === 'engagement';
+  const groomQuota = isEngagement ? (data.settings.lamaran_groom_quota ?? 15) : (data.settings.groom_quota ?? 150);
+  const brideQuota = isEngagement ? (data.settings.lamaran_bride_quota ?? 15) : (data.settings.bride_quota ?? 150);
+  const currentTypeInvites = data.invitations.filter(i => (i.type || 'wedding') === inviteTypeFilter);
+  const groomInvites = currentTypeInvites.filter(i => i.party === 'pria');
+  const brideInvites = currentTypeInvites.filter(i => i.party === 'wanita');
   const groomPax = groomInvites.reduce((a, i) => a + i.pax, 0);
   const bridePax = brideInvites.reduce((a, i) => a + i.pax, 0);
   const totalPax = groomPax + bridePax;
   const totalQuota = groomQuota + brideQuota;
   const inviteCat = (i: Invitation) => i.category?.trim() || 'Lainnya';
   // Stats per kategori ikut filter sisi (pria/wanita) yang sedang aktif.
-  const invitesByParty = data.invitations.filter(i => partyFilter === 'all' || i.party === partyFilter);
+  const invitesByParty = currentTypeInvites.filter(i => partyFilter === 'all' || i.party === partyFilter);
   const inviteCategoryStats = Array.from(new Set(invitesByParty.map(inviteCat)))
     .map(cat => {
       const items = invitesByParty.filter(i => inviteCat(i) === cat);
@@ -340,7 +345,7 @@ export default function Home() {
       };
     })
     .sort((a, b) => b.pax - a.pax);
-  const filteredInvites = data.invitations.filter(i =>
+  const filteredInvites = currentTypeInvites.filter(i =>
     (partyFilter === 'all' || i.party === partyFilter) &&
     (inviteCategoryFilter === 'all' || inviteCat(i) === inviteCategoryFilter)
   );
@@ -583,6 +588,8 @@ export default function Home() {
     setFormPax('1');
     setFormCategory(inviteCategoryFilter !== 'all' && inviteCategoryFilter !== 'Lainnya' ? inviteCategoryFilter : '');
     setFormParty(party);
+    setFormInviteType(inviteTypeFilter);
+    setFormGuestNames('');
     setShowAddInvite(true);
   };
 
@@ -594,6 +601,8 @@ export default function Home() {
       party: formParty === 'wanita' ? 'wanita' : 'pria',
       category: formCategory || undefined,
       invited: false,
+      type: formInviteType,
+      guest_names: formGuestNames.split('\n').map(n => n.trim()).filter(Boolean),
     });
     confetti({ particleCount: 80, spread: 90, origin: { y: 0.5 } });
     await silentRefresh();
@@ -605,6 +614,8 @@ export default function Home() {
     setFormPax(item.pax.toString());
     setFormCategory(item.category || '');
     setFormParty(item.party);
+    setFormInviteType(item.type || 'wedding');
+    setFormGuestNames((item.guest_names || []).join('\n'));
     setShowEditInvite(item);
   };
 
@@ -615,6 +626,8 @@ export default function Home() {
       pax: Math.max(1, parseInt(formPax) || 1),
       party: formParty === 'wanita' ? 'wanita' : 'pria',
       category: formCategory || undefined,
+      type: formInviteType,
+      guest_names: formGuestNames.split('\n').map(n => n.trim()).filter(Boolean),
     });
     await silentRefresh();
     setShowEditInvite(null);
@@ -641,7 +654,11 @@ export default function Home() {
     const g = parseInt(formGroomQuota);
     const b = parseInt(formBrideQuota);
     if (isNaN(g) || isNaN(b) || g < 0 || b < 0) return;
-    await sb.updateSettings({ groom_quota: g, bride_quota: b });
+    if (inviteTypeFilter === 'engagement') {
+      await sb.updateSettings({ lamaran_groom_quota: g, lamaran_bride_quota: b });
+    } else {
+      await sb.updateSettings({ groom_quota: g, bride_quota: b });
+    }
     await silentRefresh();
     setShowQuotaModal(false);
   };
@@ -1322,6 +1339,18 @@ export default function Home() {
             {/* INVITATIONS TAB */}
             {activeTab === 'invitations' && (
               <div className="space-y-6">
+                {/* Type Filter */}
+                <div className="flex gap-2 p-1 border-3 border-brut-black bg-brut-white shadow-brutalist-sm inline-flex w-full sm:w-auto overflow-x-auto no-scrollbar">
+                  <button onClick={() => setInviteTypeFilter('wedding')}
+                    className={`px-4 py-2 font-black text-xs uppercase border-2 border-transparent transition-all whitespace-nowrap ${
+                      inviteTypeFilter === 'wedding' ? 'bg-brut-black text-white border-brut-black shadow-brutalist-sm' : 'hover:bg-brut-yellow'
+                    }`}>UNDANGAN NIKAH</button>
+                  <button onClick={() => setInviteTypeFilter('engagement')}
+                    className={`px-4 py-2 font-black text-xs uppercase border-2 border-transparent transition-all whitespace-nowrap ${
+                      inviteTypeFilter === 'engagement' ? 'bg-brut-black text-white border-brut-black shadow-brutalist-sm' : 'hover:bg-brut-yellow'
+                    }`}>UNDANGAN LAMARAN</button>
+                </div>
+
                 {/* Total summary */}
                 <div className="brutalist-card p-6 bg-brut-white">
                   <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
@@ -1435,6 +1464,12 @@ export default function Home() {
                             {item.invited ? '✓ DISEBAR' : 'BELUM'}
                           </button>
                         </div>
+                        {item.guest_names && item.guest_names.length > 0 && (
+                          <div className="mt-2 pl-2 border-l-2 border-brut-black">
+                            <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">NAMA TAMU:</p>
+                            <p className="text-xs font-semibold leading-snug">{item.guest_names.join(', ')}</p>
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2 shrink-0">
                         <button onClick={() => handleOpenEditInvite(item)} className="w-9 h-9 border-3 border-brut-black bg-brut-white hover:bg-brut-cyan flex items-center justify-center shadow-brutalist-sm"><FaEdit className="text-xs" /></button>
@@ -2131,16 +2166,13 @@ export default function Home() {
             {showEditInvite ? 'Edit Tamu' : 'Tambah Tamu'}
           </h3>
           <div className="space-y-4 text-brut-black">
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">NAMA TAMU / KELUARGA</label>
-              <input type="text" placeholder="MIS. KELUARGA BUDI" className="w-full brutalist-input uppercase text-sm"
-                value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">JUMLAH PAX</label>
-                <input type="number" min="1" placeholder="1" className="w-full brutalist-input text-lg font-black"
-                  value={formPax} onChange={(e) => setFormPax(e.target.value)} />
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">TIPE UNDANGAN</label>
+                <select className="w-full brutalist-input text-sm font-black uppercase" value={formInviteType} onChange={(e) => setFormInviteType(e.target.value as any)}>
+                  <option value="wedding">NIKAH</option>
+                  <option value="engagement">LAMARAN</option>
+                </select>
               </div>
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-widest mb-2">SISI</label>
@@ -2151,9 +2183,26 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">KATEGORI (OPSIONAL)</label>
-              <input type="text" placeholder="KELUARGA, TEMAN, KANTOR" className="w-full brutalist-input uppercase text-sm"
-                value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">NAMA GRUP / PERWAKILAN</label>
+              <input type="text" placeholder="MIS. KELUARGA BUDI" className="w-full brutalist-input uppercase text-sm"
+                value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">JUMLAH PAX</label>
+                <input type="number" min="1" placeholder="1" className="w-full brutalist-input text-lg font-black"
+                  value={formPax} onChange={(e) => setFormPax(e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2">KATEGORI (OPSIONAL)</label>
+                <input type="text" placeholder="KELUARGA, TEMAN" className="w-full brutalist-input uppercase text-sm"
+                  value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">LIST NAMA TAMU (OPSIONAL)</label>
+              <textarea placeholder="SATU NAMA PER BARIS..." className="w-full brutalist-input text-sm resize-none h-24 p-3"
+                value={formGuestNames} onChange={(e) => setFormGuestNames(e.target.value)}></textarea>
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4">
               <button onClick={() => { setShowAddInvite(false); setShowEditInvite(null); }} className="brutalist-button brutalist-button-white !py-4 font-black">CANCEL</button>

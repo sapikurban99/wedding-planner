@@ -103,6 +103,8 @@ export interface Invitation {
   category?: string;
   notes?: string;
   invited: boolean;
+  type?: "wedding" | "engagement";
+  guest_names?: string[];
 }
 
 export interface AppSettings {
@@ -112,6 +114,8 @@ export interface AppSettings {
   couple_name: string;
   groom_quota: number;
   bride_quota: number;
+  lamaran_groom_quota?: number;
+  lamaran_bride_quota?: number;
 }
 
 export type PartyFilter = "pria" | "wanita" | "joint";

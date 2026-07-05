@@ -4,10 +4,12 @@
 -- Jalankan di Supabase SQL Editor.
 -- ============================================================
 
--- 1. Kuota per sisi di settings (default 150 / 150 = total 300 pax)
+-- 1. Kuota per sisi di settings
 ALTER TABLE wedding_plan_settings
   ADD COLUMN IF NOT EXISTS groom_quota int NOT NULL DEFAULT 150,
-  ADD COLUMN IF NOT EXISTS bride_quota int NOT NULL DEFAULT 150;
+  ADD COLUMN IF NOT EXISTS bride_quota int NOT NULL DEFAULT 150,
+  ADD COLUMN IF NOT EXISTS lamaran_groom_quota int NOT NULL DEFAULT 15,
+  ADD COLUMN IF NOT EXISTS lamaran_bride_quota int NOT NULL DEFAULT 15;
 
 -- 2. Tabel daftar undangan
 CREATE TABLE IF NOT EXISTS wedding_plan_invitations (
@@ -18,9 +20,16 @@ CREATE TABLE IF NOT EXISTS wedding_plan_invitations (
   category text,
   notes text,
   invited boolean not null default false,
+  type text not null default 'wedding' check (type in ('wedding', 'engagement')),
+  guest_names text[] default '{}',
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+-- For existing tables, add the new columns
+ALTER TABLE wedding_plan_invitations
+  ADD COLUMN IF NOT EXISTS type text not null default 'wedding' check (type in ('wedding', 'engagement')),
+  ADD COLUMN IF NOT EXISTS guest_names text[] default '{}';
 
 ALTER TABLE wedding_plan_invitations ENABLE ROW LEVEL SECURITY;
 
