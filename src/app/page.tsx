@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   FaHeart, FaWallet, FaPlusCircle, FaReceipt, FaSyncAlt,
   FaCheckCircle, FaLock, FaEye, FaEyeSlash, FaEdit, FaTrash,
-  FaChevronDown, FaChevronRight, FaRing, FaGift,
+  FaChevronDown, FaChevronRight, FaGift,
   FaPiggyBank, FaClipboardList, FaArrowUp,
   FaCalendarAlt, FaChartBar, FaChevronLeft, FaChevronRight as FaChevronRightIcon,
   FaEnvelopeOpenText, FaUsers
@@ -12,7 +12,7 @@ import {
 import confetti from 'canvas-confetti';
 import * as sb from '../lib/supabaseService';
 import type {
-  AppData, EngagementItem, SeserahanItem, Invitation, ChecklistItem
+  AppData, BudgetItem, SeserahanItem, Invitation, ChecklistItem
 } from '../type';
 
 const formatRupiah = (n: number) =>
@@ -26,7 +26,7 @@ const formatDateShort = (s: string) => {
 
 const QUICK_SELECT = [100000, 250000, 500000, 1000000];
 
-type MainTab = 'dashboard' | 'checklist' | 'engagement' | 'seserahan' | 'savings' | 'budget' | 'timeline' | 'invitations';
+type MainTab = 'dashboard' | 'checklist' | 'seserahan' | 'savings' | 'budget' | 'timeline' | 'invitations';
 type TimelineView = 'calendar' | 'gantt';
 
 type PartyChoice = 'pria' | 'wanita' | 'joint';
@@ -57,7 +57,6 @@ const TAB_CONFIG: { key: MainTab; label: string; icon: React.ReactNode }[] = [
   { key: 'dashboard', label: 'Dash', icon: <FaHeart /> },
   { key: 'budget', label: 'Budget', icon: <FaWallet /> },
   { key: 'checklist', label: 'Tasks', icon: <FaClipboardList /> },
-  { key: 'engagement', label: 'Ring', icon: <FaRing /> },
   { key: 'seserahan', label: 'Gifts', icon: <FaGift /> },
   { key: 'invitations', label: 'Tamu', icon: <FaEnvelopeOpenText /> },
   { key: 'savings', label: 'Bank', icon: <FaPiggyBank /> },
@@ -188,6 +187,7 @@ export default function Home() {
   const [partyFilter, setPartyFilter] = useState<PartyFilter>('all');
   const [inviteCategoryFilter, setInviteCategoryFilter] = useState<string>('all');
   const [inviteTypeFilter, setInviteTypeFilter] = useState<'wedding' | 'engagement'>('wedding');
+  const [budgetCategoryFilter, setBudgetCategoryFilter] = useState<string>('all');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [timelineView, setTimelineView] = useState<TimelineView>('calendar');
   const [calendarMonth, setCalendarMonth] = useState(() => new Date().getMonth());
@@ -200,11 +200,10 @@ export default function Home() {
   const [showDateModal, setShowDateModal] = useState(false);
   const [showAddChecklistItem, setShowAddChecklistItem] = useState(false);
   const [showEditChecklist, setShowEditChecklist] = useState<ChecklistItem | null>(null);
-  const [showAddEngagement, setShowAddEngagement] = useState(false);
   const [showAddSeserahan, setShowAddSeserahan] = useState(false);
   const [showEditSeserahan, setShowEditSeserahan] = useState<SeserahanItem | null>(null);
-  const [showEditEngagement, setShowEditEngagement] = useState<EngagementItem | null>(null);
   const [showAddBudget, setShowAddBudget] = useState(false);
+  const [showEditBudget, setShowEditBudget] = useState<BudgetItem | null>(null);
   const [showAddInvite, setShowAddInvite] = useState(false);
   const [showEditInvite, setShowEditInvite] = useState<Invitation | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
@@ -312,11 +311,44 @@ export default function Home() {
   const totalPlan = data.budgets.reduce((a, b) => a + b.plan, 0);
   const totalPaid = data.budgets.reduce((a, b) => a + b.paid, 0);
 
+  const budgetCategories = Array.from(new Set(data.budgets.map(b => b.category || 'Umum'))).sort();
+  const filteredBudgets = data.budgets.filter(b =>
+    budgetCategoryFilter === 'all' || (b.category || 'Umum') === budgetCategoryFilter
+  );
+  const filteredTotalPlan = filteredBudgets.reduce((a, b) => a + b.plan, 0);
+  const filteredTotalPaid = filteredBudgets.reduce((a, b) => a + b.paid, 0);
+
+  const handleOpenEditBudget = (item: BudgetItem) => {
+    setFormItem(item.item);
+    setFormCategory(item.category);
+    setFormBudget(item.plan.toString());
+    setFormActual(item.paid.toString());
+    setFormParty(item.party);
+    setShowEditBudget(item);
+  };
+
+  const handleUpdateBudget = async () => {
+    if (!showEditBudget || !formItem) return;
+    await sb.updateBudget(showEditBudget.id, {
+      item: formItem,
+      category: formCategory || 'Umum',
+      plan: parseInt(formBudget) || 0,
+      paid: parseInt(formActual) || 0,
+      party: formParty,
+    });
+    await silentRefresh();
+    setShowEditBudget(null);
+  };
+
+  const handleDeleteBudget = async (id: string) => {
+    if (!confirm('DELETE THIS BUDGET ITEM?')) return;
+    await sb.deleteBudget(id);
+    await silentRefresh();
+  };
+
   const savingsNeeded = Math.max(0, target - totalIncome);
-  const filteredEngagement = data.engagementItems.filter(i => partyFilter === 'all' || i.party === partyFilter);
   const filteredSeserahan = data.seserahanItems.filter(i => partyFilter === 'all' || i.party === partyFilter);
 
-  const engagementTotalActual = data.engagementItems.reduce((a, i) => a + i.actual_amount, 0);
   const seserahanTotalActual = data.seserahanItems.reduce((a, i) => a + i.actual_amount, 0);
 
   // === Pembagian undangan (Aldi/pria & Qisti/wanita) ===
@@ -481,23 +513,6 @@ export default function Home() {
     await silentRefresh();
   };
 
-  const handleAddEngagement = async () => {
-    if (!formItem) return;
-    await sb.addEngagementItem({
-      item: formItem,
-      category: formCategory || 'Umum',
-      budget_amount: parseInt(formBudget) || 0,
-      actual_amount: parseInt(formActual) || 0,
-      party: formParty,
-      status: formStatus,
-    });
-    await silentRefresh();
-    setShowAddEngagement(false);
-    setFormItem('');
-    setFormBudget('');
-    setFormActual('');
-  };
-
   const handleAddSeserahan = async () => {
     if (!formItem) return;
     await sb.addSeserahanItem({
@@ -515,30 +530,10 @@ export default function Home() {
     setFormActual('');
   };
 
-  const handleDeleteEngagement = async (id: string) => {
-    if (!confirm('DELETE THIS ITEM?')) return;
-    await sb.deleteEngagementItem(id);
-    await silentRefresh();
-  };
-
   const handleDeleteSeserahan = async (id: string) => {
     if (!confirm('DELETE THIS ITEM?')) return;
     await sb.deleteSeserahanItem(id);
     await silentRefresh();
-  };
-
-  const handleUpdateEngagement = async () => {
-    if (!showEditEngagement) return;
-    await sb.updateEngagementItem(showEditEngagement.id, {
-      item: formItem,
-      category: formCategory,
-      budget_amount: parseInt(formBudget) || 0,
-      actual_amount: parseInt(formActual) || 0,
-      party: formParty,
-      status: formStatus,
-    });
-    await silentRefresh();
-    setShowEditEngagement(null);
   };
 
   const handleUpdateSeserahan = async () => {
@@ -553,16 +548,6 @@ export default function Home() {
     });
     await silentRefresh();
     setShowEditSeserahan(null);
-  };
-
-  const handleOpenEditEngagement = (item: EngagementItem) => {
-    setFormItem(item.item);
-    setFormCategory(item.category);
-    setFormBudget(item.budget_amount.toString());
-    setFormActual(item.actual_amount.toString());
-    setFormParty(item.party);
-    setFormStatus(item.status);
-    setShowEditEngagement(item);
   };
 
   const handleOpenEditSeserahan = (item: SeserahanItem) => {
@@ -985,13 +970,39 @@ export default function Home() {
                 <div className="brutalist-card p-6 bg-brut-white flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="bg-brut-yellow border-4 border-brut-black p-4 w-full md:w-auto shadow-brutalist">
                     <p className="text-[10px] font-black uppercase tracking-widest mb-1">TOTAL PLANNED</p>
-                    <p className="text-3xl font-black">{formatRupiah(totalPlan)}</p>
+                    <p className="text-3xl font-black">{formatRupiah(budgetCategoryFilter === 'all' ? totalPlan : filteredTotalPlan)}</p>
                   </div>
                   <div className="bg-brut-green border-4 border-brut-black p-4 w-full md:w-auto shadow-brutalist">
                     <p className="text-[10px] font-black uppercase tracking-widest mb-1">TOTAL PAID</p>
-                    <p className="text-3xl font-black">{formatRupiah(totalPaid)}</p>
+                    <p className="text-3xl font-black">{formatRupiah(budgetCategoryFilter === 'all' ? totalPaid : filteredTotalPaid)}</p>
                   </div>
                 </div>
+
+                {/* Category Filter */}
+                {budgetCategories.length > 0 && (
+                  <div className="brutalist-card p-4 bg-brut-white">
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 mr-2">FILTER:</span>
+                      <button
+                        onClick={() => setBudgetCategoryFilter('all')}
+                        className={`px-3 py-1 font-black text-[10px] uppercase border-2 border-brut-black transition-all ${
+                          budgetCategoryFilter === 'all' ? 'bg-brut-black text-white shadow-brutalist-sm' : 'bg-brut-white hover:bg-brut-yellow'
+                        }`}>
+                        ALL
+                      </button>
+                      {budgetCategories.map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => setBudgetCategoryFilter(budgetCategoryFilter === cat ? 'all' : cat)}
+                          className={`px-3 py-1 font-black text-[10px] uppercase border-2 border-brut-black transition-all ${
+                            budgetCategoryFilter === cat ? 'bg-brut-black text-white shadow-brutalist-sm' : 'bg-brut-white hover:bg-brut-yellow'
+                          }`}>
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setShowAddBudget(true); }}
                   className="w-full brutalist-button brutalist-button-cyan !py-6 text-xl">
@@ -999,22 +1010,30 @@ export default function Home() {
                 </button>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.budgets.map((b) => {
+                  {filteredBudgets.map((b) => {
                     const pct = b.plan > 0 ? (b.paid / b.plan) * 100 : 0;
                     return (
                       <div key={b.id} className="brutalist-card p-5 bg-brut-white hover:bg-brut-yellow transition-colors group">
                         <div className="flex justify-between items-start mb-4">
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <p className="font-black text-lg uppercase truncate">{b.item}</p>
                             <p className="text-[10px] font-black bg-brut-black text-brut-white px-2 inline-block uppercase mt-1">{b.category}</p>
                           </div>
-                          {b.party !== 'joint' && (
-                            <span className={`text-[10px] font-black px-2 py-1 border-2 border-brut-black uppercase shadow-brutalist-sm ${
-                              b.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'
-                            }`}>
-                              {b.party === 'pria' ? 'Groom' : 'Bride'}
-                            </span>
-                          )}
+                          <div className="flex gap-2 shrink-0">
+                            {b.party !== 'joint' && (
+                              <span className={`text-[10px] font-black px-2 py-1 border-2 border-brut-black uppercase shadow-brutalist-sm ${
+                                b.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'
+                              }`}>
+                                {b.party === 'pria' ? 'Groom' : 'Bride'}
+                              </span>
+                            )}
+                            <button onClick={() => handleOpenEditBudget(b)} className="w-8 h-8 border-2 border-brut-black bg-brut-white hover:bg-brut-cyan flex items-center justify-center shadow-brutalist-sm">
+                              <FaEdit className="text-xs" />
+                            </button>
+                            <button onClick={() => handleDeleteBudget(b.id)} className="w-8 h-8 border-2 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm">
+                              <FaTrash className="text-xs" />
+                            </button>
+                          </div>
                         </div>
                         <div className="w-full h-8 bg-brut-black border-3 border-brut-black overflow-hidden mb-3 relative">
                           <div className="h-full bg-brut-green transition-all duration-500"
@@ -1034,6 +1053,11 @@ export default function Home() {
                       </div>
                     );
                   })}
+                  {filteredBudgets.length === 0 && (
+                    <div className="sm:col-span-2 lg:col-span-3 brutalist-card p-16 bg-brut-white border-dashed text-center">
+                      <p className="text-xl font-black uppercase text-gray-300">NO BUDGET ITEMS IN THIS CATEGORY</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1154,95 +1178,6 @@ export default function Home() {
                         </button>
                      </div>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* ENGAGEMENT TAB */}
-            {activeTab === 'engagement' && (
-              <div className="space-y-6">
-                <div className="brutalist-card p-6 bg-brut-white">
-                  <p className="font-black text-2xl uppercase tracking-tighter mb-6 text-center border-b-4 border-brut-black pb-4">Engagement Summary</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="p-4 bg-brut-cyan border-4 border-brut-black shadow-brutalist text-center">
-                      <p className="text-xs font-black uppercase tracking-widest mb-2">ITEMS TOTAL</p>
-                      <p className="font-black text-5xl">{data.engagementItems.length}</p>
-                    </div>
-                    <div className="p-4 bg-brut-green border-4 border-brut-black shadow-brutalist text-center">
-                      <p className="text-xs font-black uppercase tracking-widest mb-2">ACTUAL COST</p>
-                      <p className="font-black text-3xl sm:text-4xl">{formatRupiah(engagementTotalActual)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-3 items-center justify-between">
-                  <div className="flex gap-2 p-1 border-3 border-brut-black bg-brut-white shadow-brutalist-sm">
-                    {(['all', 'pria', 'wanita', 'joint'] as const).map(p => (
-                      <button key={p} onClick={() => setPartyFilter(p)}
-                        className={`px-3 py-1 font-black text-[10px] uppercase border-2 border-transparent transition-all ${
-                          partyFilter === p ? 'bg-brut-black text-white border-brut-black shadow-brutalist-sm' : 'hover:bg-brut-yellow'
-                        }`}>
-                        {p === 'all' ? 'ALL' : p === 'pria' ? 'GROOM' : p === 'wanita' ? 'BRIDE' : 'JOINT'}
-                      </button>
-                    ))}
-                  </div>
-                  <button onClick={() => { setFormItem(''); setFormBudget(''); setFormActual(''); setFormParty('joint'); setFormStatus('planned'); setShowAddEngagement(true); }}
-                    className="brutalist-button brutalist-button-cyan !py-3 !text-sm uppercase">
-                    + ADD ENGAGEMENT ITEM
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {filteredEngagement.map(item => (
-                    <div key={item.id} className="brutalist-card p-5 bg-brut-white hover:bg-brut-yellow transition-colors group">
-                      <div className="flex justify-between items-start gap-4 mb-6">
-                        <div className="min-w-0 flex-1">
-                           <p className="font-black text-xl uppercase truncate group-hover:text-brut-black">{item.item}</p>
-                           <div className="flex flex-wrap gap-2 mt-2">
-                              <span className={`text-[10px] font-black px-2 py-0.5 border-2 border-brut-black uppercase shadow-brutalist-sm`}
-                                style={{ backgroundColor: STATUS_COLORS[item.status] }}>
-                                {item.status}
-                              </span>
-                              {item.party !== 'joint' && (
-                                <span className={`text-[10px] font-black px-2 py-0.5 border-2 border-brut-black uppercase shadow-brutalist-sm ${
-                                  item.party === 'pria' ? 'bg-brut-cyan' : 'bg-brut-pink'
-                                }`}>
-                                  {item.party === 'pria' ? 'GROOM' : 'BRIDE'}
-                                </span>
-                              )}
-                           </div>
-                           <p className="text-[10px] font-black bg-brut-black text-brut-white px-2 inline-block uppercase mt-2">{item.category}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => handleOpenEditEngagement(item)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-brut-cyan flex items-center justify-center shadow-brutalist-sm transition-all active:translate-y-1">
-                            <FaEdit className="text-sm" />
-                          </button>
-                          <button onClick={() => handleDeleteEngagement(item.id)} className="w-10 h-10 border-3 border-brut-black bg-brut-white hover:bg-red-500 flex items-center justify-center shadow-brutalist-sm transition-all active:translate-y-1">
-                            <FaTrash className="text-sm" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-3 gap-3 border-t-4 border-brut-black pt-5">
-                        <div className="bg-brut-white border-2 border-brut-black p-2 shadow-brutalist-sm">
-                          <p className="text-[8px] font-black uppercase text-gray-500 mb-1">BUDGET</p>
-                          <p className="text-xs font-black">{formatRupiah(item.budget_amount)}</p>
-                        </div>
-                        <div className="bg-brut-white border-2 border-brut-black p-2 shadow-brutalist-sm">
-                          <p className="text-[8px] font-black uppercase text-gray-500 mb-1">ACTUAL</p>
-                          <p className="text-xs font-black">{formatRupiah(item.actual_amount)}</p>
-                        </div>
-                        <div className={`border-2 border-brut-black p-2 shadow-brutalist-sm ${item.budget_amount >= item.actual_amount ? 'bg-brut-green' : 'bg-red-500 text-white'}`}>
-                          <p className="text-[8px] font-black uppercase opacity-70 mb-1">DIFF</p>
-                          <p className="text-xs font-black">{formatRupiah(item.budget_amount - item.actual_amount)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {filteredEngagement.length === 0 && (
-                     <div className="md:col-span-2 brutalist-card p-20 bg-brut-white border-dashed text-center">
-                        <p className="text-2xl font-black uppercase text-gray-300">NO ENGAGEMENT DATA</p>
-                     </div>
-                  )}
                 </div>
               </div>
             )}
@@ -1968,44 +1903,6 @@ export default function Home() {
         </BottomSheet>
       )}
 
-      {/* ADD ENGAGEMENT MODAL */}
-      {showAddEngagement && (
-        <BottomSheet onClose={() => setShowAddEngagement(false)}>
-          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">New Engagement Item</h3>
-          <div className="space-y-4">
-            <input type="text" placeholder="ITEM NAME" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-            <input type="text" placeholder="CATEGORY" className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
-            <div className="grid grid-cols-2 gap-3">
-               <div>
-                  <label className="block text-[8px] font-black uppercase mb-1 text-brut-black">BUDGET</label>
-                  <input type="number" placeholder="BUDGET" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
-               </div>
-               <div>
-                  <label className="block text-[8px] font-black uppercase mb-1 text-brut-black">ACTUAL</label>
-                  <input type="number" placeholder="ACTUAL" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
-               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-               <select className="w-full brutalist-input text-[10px] font-black uppercase text-brut-black" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-                  <option value="joint">JOINT</option>
-                  <option value="pria">GROOM</option>
-                  <option value="wanita">BRIDE</option>
-               </select>
-               <select className="w-full brutalist-input text-[10px] font-black uppercase text-brut-black" value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
-                  <option value="planned">PLANNED</option>
-                  <option value="ordered">ORDERED</option>
-                  <option value="done">DONE</option>
-                  <option value="cancelled">CANCELLED</option>
-               </select>
-            </div>
-            <div className="grid grid-cols-2 gap-4 pt-4">
-              <button onClick={() => setShowAddEngagement(false)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
-              <button onClick={handleAddEngagement} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">SAVE ITEM</button>
-            </div>
-          </div>
-        </BottomSheet>
-      )}
-
       {/* ADD SESERAHAN MODAL */}
       {showAddSeserahan && (
         <BottomSheet onClose={() => setShowAddSeserahan(false)}>
@@ -2039,38 +1936,6 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 pt-4">
               <button onClick={() => setShowAddSeserahan(false)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
               <button onClick={handleAddSeserahan} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">SAVE ITEM</button>
-            </div>
-          </div>
-        </BottomSheet>
-      )}
-
-      {/* EDIT ENGAGEMENT MODAL */}
-      {showEditEngagement && (
-        <BottomSheet onClose={() => setShowEditEngagement(null)}>
-          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Edit Engagement</h3>
-          <div className="space-y-4 text-brut-black">
-            <input type="text" placeholder="ITEM NAME" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
-            <input type="text" placeholder="CATEGORY" className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
-            <div className="grid grid-cols-2 gap-3">
-               <input type="number" placeholder="BUDGET" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
-               <input type="number" placeholder="ACTUAL" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-               <select className="w-full brutalist-input text-[10px] font-black uppercase" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
-                  <option value="joint">JOINT</option>
-                  <option value="pria">GROOM</option>
-                  <option value="wanita">BRIDE</option>
-               </select>
-               <select className="w-full brutalist-input text-[10px] font-black uppercase" value={formStatus} onChange={(e) => setFormStatus(e.target.value as StatusLabel)}>
-                  <option value="planned">PLANNED</option>
-                  <option value="ordered">ORDERED</option>
-                  <option value="done">DONE</option>
-                  <option value="cancelled">CANCELLED</option>
-               </select>
-            </div>
-            <div className="grid grid-cols-2 gap-4 pt-4">
-              <button onClick={() => setShowEditEngagement(null)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
-              <button onClick={handleUpdateEngagement} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">UPDATE</button>
             </div>
           </div>
         </BottomSheet>
@@ -2119,7 +1984,13 @@ export default function Home() {
              </div>
              <div>
                 <label className="block text-[10px] font-black uppercase mb-1">CATEGORY</label>
-                <input type="text" placeholder="CONCEPT, ADMIN, ETC." className="w-full brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+                <div className="flex gap-2">
+                  <select className="flex-1 brutalist-input text-sm font-black uppercase" value={budgetCategories.includes(formCategory) ? formCategory : ''} onChange={(e) => setFormCategory(e.target.value)}>
+                    <option value="">PILIH / KETIK BARU</option>
+                    {budgetCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                  <input type="text" placeholder="ATAU KETIK BARU" className="flex-1 brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+                </div>
              </div>
              <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -2154,6 +2025,51 @@ export default function Home() {
                    await silentRefresh();
                    setShowAddBudget(false);
                 }} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">ADD ENTRY</button>
+             </div>
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* EDIT BUDGET MODAL */}
+      {showEditBudget && (
+        <BottomSheet onClose={() => setShowEditBudget(null)}>
+          <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 border-b-4 border-brut-black pb-2 inline-block">Edit Budget Entry</h3>
+          <div className="space-y-4 text-brut-black">
+             <div>
+                <label className="block text-[10px] font-black uppercase mb-1">VENDOR / ITEM NAME</label>
+                <input type="text" placeholder="E.G. VENUE, CATERING, MUA" className="w-full brutalist-input uppercase text-sm" value={formItem} onChange={(e) => setFormItem(e.target.value)} />
+             </div>
+             <div>
+                <label className="block text-[10px] font-black uppercase mb-1">CATEGORY</label>
+                <div className="flex gap-2">
+                  <select className="flex-1 brutalist-input text-sm font-black uppercase" value={budgetCategories.includes(formCategory) ? formCategory : ''} onChange={(e) => setFormCategory(e.target.value)}>
+                    <option value="">PILIH / KETIK BARU</option>
+                    {budgetCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                  <input type="text" placeholder="ATAU KETIK BARU" className="flex-1 brutalist-input uppercase text-sm" value={formCategory} onChange={(e) => setFormCategory(e.target.value)} />
+                </div>
+             </div>
+             <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[8px] font-black uppercase mb-1">PLANNED COST</label>
+                  <input type="number" placeholder="0" className="w-full brutalist-input text-xs" value={formBudget} onChange={(e) => setFormBudget(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-[8px] font-black uppercase mb-1">PAID AMOUNT</label>
+                  <input type="number" placeholder="0" className="w-full brutalist-input text-xs" value={formActual} onChange={(e) => setFormActual(e.target.value)} />
+                </div>
+             </div>
+             <div>
+                <label className="block text-[10px] font-black uppercase mb-1">RESPONSIBLE PARTY</label>
+                <select className="w-full brutalist-input text-sm font-black uppercase" value={formParty} onChange={(e) => setFormParty(e.target.value as PartyChoice)}>
+                  <option value="joint">JOINT / BOTH</option>
+                  <option value="pria">GROOM</option>
+                  <option value="wanita">BRIDE</option>
+                </select>
+             </div>
+             <div className="grid grid-cols-2 gap-4 pt-4">
+                <button onClick={() => setShowEditBudget(null)} className="brutalist-button brutalist-button-white !py-3 font-black text-xs">CANCEL</button>
+                <button onClick={handleUpdateBudget} className="brutalist-button brutalist-button-cyan !py-3 font-black text-xs">UPDATE ENTRY</button>
              </div>
           </div>
         </BottomSheet>
